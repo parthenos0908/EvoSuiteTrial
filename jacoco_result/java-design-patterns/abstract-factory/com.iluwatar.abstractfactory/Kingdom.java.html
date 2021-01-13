@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Kingdom.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.abstractfactory</a> &gt; <span class="el_source">Kingdom.java</span></div><h1>Kingdom.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.abstractfactory;
+
+<span class="fc" id="L26">public class Kingdom {</span>
+
+  private King king;
+  private Castle castle;
+  private Army army;
+
+  public King getKing() {
+<span class="fc" id="L33">    return king;</span>
+  }
+
+  public Castle getCastle() {
+<span class="fc" id="L37">    return castle;</span>
+  }
+
+  public Army getArmy() {
+<span class="fc" id="L41">    return army;</span>
+  }
+
+  public void setKing(King king) {
+<span class="fc" id="L45">    this.king = king;</span>
+<span class="fc" id="L46">  }</span>
+
+  public void setCastle(Castle castle) {
+<span class="fc" id="L49">    this.castle = castle;</span>
+<span class="fc" id="L50">  }</span>
+
+  public void setArmy(Army army) {
+<span class="fc" id="L53">    this.army = army;</span>
+<span class="fc" id="L54">  }</span>
+
+  /**
+   * The factory of kingdom factories.
+   */
+<span class="nc" id="L59">  public static class FactoryMaker {</span>
+
+    /**
+     * Enumeration for the different types of Kingdoms.
+     */
+<span class="fc" id="L64">    public enum KingdomType {</span>
+<span class="fc" id="L65">      ELF, ORC</span>
+    }
+
+    /**
+     * The factory method to create KingdomFactory concrete objects.
+     */
+    public static KingdomFactory makeFactory(KingdomType type) {
+<span class="pc bpc" id="L72" title="1 of 3 branches missed.">      switch (type) {</span>
+        case ELF:
+<span class="fc" id="L74">          return new ElfKingdomFactory();</span>
+        case ORC:
+<span class="fc" id="L76">          return new OrcKingdomFactory();</span>
+        default:
+<span class="nc" id="L78">          throw new IllegalArgumentException(&quot;KingdomType not supported.&quot;);</span>
+      }
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

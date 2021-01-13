@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StudentRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.unitofwork</a> &gt; <span class="el_source">StudentRepository.java</span></div><h1>StudentRepository.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.unitofwork;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * {@link StudentRepository} Student database repository. supports unit of work for student data.
+ */
+public class StudentRepository implements IUnitOfWork&lt;Student&gt; {
+<span class="fc" id="L36">  private static final Logger LOGGER = LoggerFactory.getLogger(StudentRepository.class);</span>
+
+  private final Map&lt;String, List&lt;Student&gt;&gt; context;
+  private final StudentDatabase studentDatabase;
+
+  /**
+   * Constructor.
+   *
+   * @param context         set of operations to be perform during commit.
+   * @param studentDatabase Database for student records.
+   */
+<span class="fc" id="L47">  public StudentRepository(Map&lt;String, List&lt;Student&gt;&gt; context, StudentDatabase studentDatabase) {</span>
+<span class="fc" id="L48">    this.context = context;</span>
+<span class="fc" id="L49">    this.studentDatabase = studentDatabase;</span>
+<span class="fc" id="L50">  }</span>
+
+  @Override
+  public void registerNew(Student student) {
+<span class="fc" id="L54">    LOGGER.info(&quot;Registering {} for insert in context.&quot;, student.getName());</span>
+<span class="fc" id="L55">    register(student, UnitActions.INSERT.getActionValue());</span>
+<span class="fc" id="L56">  }</span>
+
+  @Override
+  public void registerModified(Student student) {
+<span class="fc" id="L60">    LOGGER.info(&quot;Registering {} for modify in context.&quot;, student.getName());</span>
+<span class="fc" id="L61">    register(student, UnitActions.MODIFY.getActionValue());</span>
+
+<span class="fc" id="L63">  }</span>
+
+  @Override
+  public void registerDeleted(Student student) {
+<span class="fc" id="L67">    LOGGER.info(&quot;Registering {} for delete in context.&quot;, student.getName());</span>
+<span class="fc" id="L68">    register(student, UnitActions.DELETE.getActionValue());</span>
+<span class="fc" id="L69">  }</span>
+
+  private void register(Student student, String operation) {
+<span class="fc" id="L72">    var studentsToOperate = context.get(operation);</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">    if (studentsToOperate == null) {</span>
+<span class="fc" id="L74">      studentsToOperate = new ArrayList&lt;&gt;();</span>
+    }
+<span class="fc" id="L76">    studentsToOperate.add(student);</span>
+<span class="fc" id="L77">    context.put(operation, studentsToOperate);</span>
+<span class="fc" id="L78">  }</span>
+
+  /**
+   * All UnitOfWork operations are batched and executed together on commit only.
+   */
+  @Override
+  public void commit() {
+<span class="fc bfc" id="L85" title="All 4 branches covered.">    if (context == null || context.size() == 0) {</span>
+<span class="fc" id="L86">      return;</span>
+    }
+<span class="fc" id="L88">    LOGGER.info(&quot;Commit started&quot;);</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">    if (context.containsKey(UnitActions.INSERT.getActionValue())) {</span>
+<span class="fc" id="L90">      commitInsert();</span>
+    }
+
+<span class="fc bfc" id="L93" title="All 2 branches covered.">    if (context.containsKey(UnitActions.MODIFY.getActionValue())) {</span>
+<span class="fc" id="L94">      commitModify();</span>
+    }
+<span class="fc bfc" id="L96" title="All 2 branches covered.">    if (context.containsKey(UnitActions.DELETE.getActionValue())) {</span>
+<span class="fc" id="L97">      commitDelete();</span>
+    }
+<span class="fc" id="L99">    LOGGER.info(&quot;Commit finished.&quot;);</span>
+<span class="fc" id="L100">  }</span>
+
+  private void commitInsert() {
+<span class="fc" id="L103">    var studentsToBeInserted = context.get(UnitActions.INSERT.getActionValue());</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">    for (var student : studentsToBeInserted) {</span>
+<span class="fc" id="L105">      LOGGER.info(&quot;Saving {} to database.&quot;, student.getName());</span>
+<span class="fc" id="L106">      studentDatabase.insert(student);</span>
+<span class="fc" id="L107">    }</span>
+<span class="fc" id="L108">  }</span>
+
+  private void commitModify() {
+<span class="fc" id="L111">    var modifiedStudents = context.get(UnitActions.MODIFY.getActionValue());</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">    for (var student : modifiedStudents) {</span>
+<span class="fc" id="L113">      LOGGER.info(&quot;Modifying {} to database.&quot;, student.getName());</span>
+<span class="fc" id="L114">      studentDatabase.modify(student);</span>
+<span class="fc" id="L115">    }</span>
+<span class="fc" id="L116">  }</span>
+
+  private void commitDelete() {
+<span class="fc" id="L119">    var deletedStudents = context.get(UnitActions.DELETE.getActionValue());</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">    for (var student : deletedStudents) {</span>
+<span class="fc" id="L121">      LOGGER.info(&quot;Deleting {} to database.&quot;, student.getName());</span>
+<span class="fc" id="L122">      studentDatabase.delete(student);</span>
+<span class="fc" id="L123">    }</span>
+<span class="fc" id="L124">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

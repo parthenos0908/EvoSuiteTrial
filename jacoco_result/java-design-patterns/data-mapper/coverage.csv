@@ -1,0 +1,5 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.datamapper,App,0,54,0,0,0,13,0,2,0,2
+JaCoCo Coverage Report,com.iluwatar.datamapper,Student,18,53,2,6,8,16,7,7,5,5
+JaCoCo Coverage Report,com.iluwatar.datamapper,DataMapperException,4,0,0,0,2,0,1,0,1,0
+JaCoCo Coverage Report,com.iluwatar.datamapper,StudentDataMapperImpl,25,76,3,3,4,18,4,7,1,7

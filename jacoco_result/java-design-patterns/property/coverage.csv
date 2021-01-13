@@ -1,0 +1,6 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.property,Character,0,164,0,12,0,36,0,16,0,10
+JaCoCo Coverage Report,com.iluwatar.property,Character.Type,0,21,0,0,0,2,0,1,0,1
+JaCoCo Coverage Report,com.iluwatar.property,App,3,127,0,0,1,26,1,2,1,2
+JaCoCo Coverage Report,com.iluwatar.property,Character.new Prototype() {...},4,8,0,0,3,2,3,2,3,2
+JaCoCo Coverage Report,com.iluwatar.property,Stats,0,51,0,0,0,2,0,1,0,1

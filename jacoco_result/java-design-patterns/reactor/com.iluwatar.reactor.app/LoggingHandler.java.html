@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoggingHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.reactor.app</a> &gt; <span class="el_source">LoggingHandler.java</span></div><h1>LoggingHandler.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.reactor.app;
+
+import com.iluwatar.reactor.framework.AbstractNioChannel;
+import com.iluwatar.reactor.framework.ChannelHandler;
+import com.iluwatar.reactor.framework.NioDatagramChannel.DatagramPacket;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Logging server application logic. It logs the incoming requests on standard console and returns a
+ * canned acknowledgement back to the remote peer.
+ */
+<span class="fc" id="L38">public class LoggingHandler implements ChannelHandler {</span>
+
+<span class="fc" id="L40">  private static final Logger LOGGER = LoggerFactory.getLogger(LoggingHandler.class);</span>
+
+<span class="fc" id="L42">  private static final byte[] ACK = &quot;Data logged successfully&quot;.getBytes();</span>
+
+  /**
+   * Decodes the received data and logs it on standard console.
+   */
+  @Override
+  public void handleChannelRead(AbstractNioChannel channel, Object readObject, SelectionKey key) {
+    /*
+     * As this handler is attached with both TCP and UDP channels we need to check whether the data
+     * received is a ByteBuffer (from TCP channel) or a DatagramPacket (from UDP channel).
+     */
+<span class="fc bfc" id="L53" title="All 2 branches covered.">    if (readObject instanceof ByteBuffer) {</span>
+<span class="fc" id="L54">      doLogging((ByteBuffer) readObject);</span>
+<span class="fc" id="L55">      sendReply(channel, key);</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">    } else if (readObject instanceof DatagramPacket) {</span>
+<span class="fc" id="L57">      var datagram = (DatagramPacket) readObject;</span>
+<span class="fc" id="L58">      doLogging(datagram.getData());</span>
+<span class="fc" id="L59">      sendReply(channel, datagram, key);</span>
+<span class="fc" id="L60">    } else {</span>
+<span class="nc" id="L61">      throw new IllegalStateException(&quot;Unknown data received&quot;);</span>
+    }
+<span class="fc" id="L63">  }</span>
+
+  private static void sendReply(
+      AbstractNioChannel channel,
+      DatagramPacket incomingPacket,
+      SelectionKey key
+  ) {
+    /*
+     * Create a reply acknowledgement datagram packet setting the receiver to the sender of incoming
+     * message.
+     */
+<span class="fc" id="L74">    var replyPacket = new DatagramPacket(ByteBuffer.wrap(ACK));</span>
+<span class="fc" id="L75">    replyPacket.setReceiver(incomingPacket.getSender());</span>
+
+<span class="fc" id="L77">    channel.write(replyPacket, key);</span>
+<span class="fc" id="L78">  }</span>
+
+  private static void sendReply(AbstractNioChannel channel, SelectionKey key) {
+<span class="fc" id="L81">    var buffer = ByteBuffer.wrap(ACK);</span>
+<span class="fc" id="L82">    channel.write(buffer, key);</span>
+<span class="fc" id="L83">  }</span>
+
+  private static void doLogging(ByteBuffer data) {
+    // assuming UTF-8 :(
+<span class="fc" id="L87">    LOGGER.info(new String(data.array(), 0, data.limit()));</span>
+<span class="fc" id="L88">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlayerDetails.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.hexagonal.domain</a> &gt; <span class="el_source">PlayerDetails.java</span></div><h1>PlayerDetails.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.hexagonal.domain;
+
+/**
+ * Immutable value object containing lottery player details.
+ */
+public class PlayerDetails {
+
+  private final String emailAddress;
+  private final String bankAccountNumber;
+  private final String phoneNumber;
+
+  /**
+   * Constructor.
+   */
+<span class="fc" id="L38">  public PlayerDetails(String email, String bankAccount, String phone) {</span>
+<span class="fc" id="L39">    emailAddress = email;</span>
+<span class="fc" id="L40">    bankAccountNumber = bankAccount;</span>
+<span class="fc" id="L41">    phoneNumber = phone;</span>
+<span class="fc" id="L42">  }</span>
+
+  /**
+   * Get email.
+   *
+   * @return email
+   */
+  public String getEmail() {
+<span class="fc" id="L50">    return emailAddress;</span>
+  }
+
+  /**
+   * Get back account number.
+   *
+   * @return bank account number
+   */
+  public String getBankAccount() {
+<span class="fc" id="L59">    return bankAccountNumber;</span>
+  }
+
+  /**
+   * Get phone number.
+   *
+   * @return phone number
+   */
+  public String getPhoneNumber() {
+<span class="nc" id="L68">    return phoneNumber;</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L73">    return &quot;PlayerDetails{&quot; + &quot;emailAddress='&quot; + emailAddress + '\''</span>
+        + &quot;, bankAccountNumber='&quot; + bankAccountNumber + '\''
+        + &quot;, phoneNumber='&quot; + phoneNumber + '\'' + '}';
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L80">    final var prime = 31;</span>
+<span class="nc" id="L81">    var result = 1;</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">    result = prime * result + ((bankAccountNumber == null) ? 0 : bankAccountNumber.hashCode());</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">    result = prime * result + ((emailAddress == null) ? 0 : emailAddress.hashCode());</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">    result = prime * result + ((phoneNumber == null) ? 0 : phoneNumber.hashCode());</span>
+<span class="nc" id="L85">    return result;</span>
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">    if (this == obj) {</span>
+<span class="nc" id="L91">      return true;</span>
+    }
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">    if (obj == null) {</span>
+<span class="nc" id="L94">      return false;</span>
+    }
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">    if (getClass() != obj.getClass()) {</span>
+<span class="nc" id="L97">      return false;</span>
+    }
+<span class="fc" id="L99">    var other = (PlayerDetails) obj;</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">    if (bankAccountNumber == null) {</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">      if (other.bankAccountNumber != null) {</span>
+<span class="nc" id="L102">        return false;</span>
+      }
+<span class="fc bfc" id="L104" title="All 2 branches covered.">    } else if (!bankAccountNumber.equals(other.bankAccountNumber)) {</span>
+<span class="fc" id="L105">      return false;</span>
+    }
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">    if (emailAddress == null) {</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">      if (other.emailAddress != null) {</span>
+<span class="nc" id="L109">        return false;</span>
+      }
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">    } else if (!emailAddress.equals(other.emailAddress)) {</span>
+<span class="nc" id="L112">      return false;</span>
+    }
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">    if (phoneNumber == null) {</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">      return other.phoneNumber == null;</span>
+    } else {
+<span class="fc" id="L117">      return phoneNumber.equals(other.phoneNumber);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

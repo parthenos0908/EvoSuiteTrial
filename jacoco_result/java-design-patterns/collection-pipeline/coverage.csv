@@ -1,0 +1,10 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.collectionpipeline,Category,0,21,0,0,0,2,0,1,0,1
+JaCoCo Coverage Report,com.iluwatar.collectionpipeline,ImperativeProgramming.new Comparator() {...},0,9,0,0,0,2,0,2,0,2
+JaCoCo Coverage Report,com.iluwatar.collectionpipeline,Car,32,114,16,12,11,26,15,6,1,6
+JaCoCo Coverage Report,com.iluwatar.collectionpipeline,ImperativeProgramming,0,146,0,16,0,31,0,11,0,3
+JaCoCo Coverage Report,com.iluwatar.collectionpipeline,App,59,0,0,0,17,0,3,0,3,0
+JaCoCo Coverage Report,com.iluwatar.collectionpipeline,CarFactory,0,44,0,0,0,1,0,1,0,1
+JaCoCo Coverage Report,com.iluwatar.collectionpipeline,FunctionalProgramming,0,48,0,2,0,7,0,6,0,5
+JaCoCo Coverage Report,com.iluwatar.collectionpipeline,ImperativeProgramming.new Comparator() {...},0,9,0,0,0,2,0,2,0,2
+JaCoCo Coverage Report,com.iluwatar.collectionpipeline,Person,0,9,0,0,0,4,0,2,0,2

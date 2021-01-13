@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Order.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.commander</a> &gt; <span class="el_source">Order.java</span></div><h1>Order.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.commander;
+
+import java.util.Hashtable;
+import java.util.Random;
+
+/**
+ * Order class holds details of the order.
+ */
+
+public class Order { //can store all transactions ids also
+
+<span class="fc" id="L35">  enum PaymentStatus {</span>
+<span class="fc" id="L36">    NOT_DONE, TRYING, DONE</span>
+  }
+
+<span class="fc" id="L39">  enum MessageSent {</span>
+<span class="fc" id="L40">    NONE_SENT, PAYMENT_FAIL, PAYMENT_TRYING, PAYMENT_SUCCESSFUL</span>
+  }
+
+  final User user;
+  final String item;
+  public final String id;
+  final float price;
+  final long createdTime;
+<span class="fc" id="L48">  private static final Random RANDOM = new Random();</span>
+  private static final String ALL_CHARS = &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890&quot;;
+<span class="fc" id="L50">  private static final Hashtable&lt;String, Boolean&gt; USED_IDS = new Hashtable&lt;String, Boolean&gt;();</span>
+  PaymentStatus paid;
+  MessageSent messageSent; //to avoid sending error msg on page and text more than once
+  boolean addedToEmployeeHandle; //to avoid creating more to enqueue
+
+<span class="fc" id="L55">  Order(User user, String item, float price) {</span>
+<span class="fc" id="L56">    this.createdTime = System.currentTimeMillis();</span>
+<span class="fc" id="L57">    this.user = user;</span>
+<span class="fc" id="L58">    this.item = item;</span>
+<span class="fc" id="L59">    this.price = price;</span>
+<span class="fc" id="L60">    String id = createUniqueId();</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">    if (USED_IDS.get(id) != null) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">      while (USED_IDS.get(id)) {</span>
+<span class="nc" id="L63">        id = createUniqueId();</span>
+      }
+    }
+<span class="fc" id="L66">    this.id = id;</span>
+<span class="fc" id="L67">    USED_IDS.put(this.id, true);</span>
+<span class="fc" id="L68">    this.paid = PaymentStatus.TRYING;</span>
+<span class="fc" id="L69">    this.messageSent = MessageSent.NONE_SENT;</span>
+<span class="fc" id="L70">    this.addedToEmployeeHandle = false;</span>
+<span class="fc" id="L71">  }</span>
+
+  private String createUniqueId() {
+<span class="fc" id="L74">    StringBuilder random = new StringBuilder();</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">    while (random.length() &lt; 12) { // length of the random string.</span>
+<span class="fc" id="L76">      int index = (int) (RANDOM.nextFloat() * ALL_CHARS.length());</span>
+<span class="fc" id="L77">      random.append(ALL_CHARS.charAt(index));</span>
+<span class="fc" id="L78">    }</span>
+<span class="fc" id="L79">    return random.toString();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

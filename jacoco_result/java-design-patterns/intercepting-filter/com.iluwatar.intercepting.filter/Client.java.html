@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Client.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.intercepting.filter</a> &gt; <span class="el_source">Client.java</span></div><h1>Client.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.intercepting.filter;
+
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.util.Arrays;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRootPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
+
+/**
+ * The Client class is responsible for handling the input and running them through filters inside
+ * the {@link FilterManager}.
+ *
+ * &lt;p&gt;This is where {@link Filter}s come to play as the client pre-processes the request before
+ * being displayed in the {@link Target}.
+ *
+ * @author joshzambales
+ */
+public class Client extends JFrame { // NOSONAR
+
+  private static final long serialVersionUID = 1L;
+
+  private transient FilterManager filterManager;
+  private final JLabel jl;
+  private final JTextField[] jtFields;
+  private final JTextArea[] jtAreas;
+  private final JButton clearButton;
+  private final JButton processButton;
+
+  /**
+   * Constructor.
+   */
+  public Client() {
+<span class="fc" id="L64">    super(&quot;Client System&quot;);</span>
+<span class="fc" id="L65">    setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);</span>
+<span class="fc" id="L66">    setSize(300, 300);</span>
+<span class="fc" id="L67">    jl = new JLabel(&quot;RUNNING...&quot;);</span>
+<span class="fc" id="L68">    jtFields = new JTextField[3];</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">    for (var i = 0; i &lt; 3; i++) {</span>
+<span class="fc" id="L70">      jtFields[i] = new JTextField();</span>
+    }
+<span class="fc" id="L72">    jtAreas = new JTextArea[2];</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">    for (var i = 0; i &lt; 2; i++) {</span>
+<span class="fc" id="L74">      jtAreas[i] = new JTextArea();</span>
+    }
+<span class="fc" id="L76">    clearButton = new JButton(&quot;Clear&quot;);</span>
+<span class="fc" id="L77">    processButton = new JButton(&quot;Process&quot;);</span>
+
+<span class="fc" id="L79">    setup();</span>
+<span class="fc" id="L80">  }</span>
+
+  private void setup() {
+<span class="fc" id="L83">    setLayout(new BorderLayout());</span>
+<span class="fc" id="L84">    var panel = new JPanel();</span>
+<span class="fc" id="L85">    add(jl, BorderLayout.SOUTH);</span>
+<span class="fc" id="L86">    add(panel, BorderLayout.CENTER);</span>
+<span class="fc" id="L87">    panel.setLayout(new GridLayout(6, 2));</span>
+<span class="fc" id="L88">    panel.add(new JLabel(&quot;Name&quot;));</span>
+<span class="fc" id="L89">    panel.add(jtFields[0]);</span>
+<span class="fc" id="L90">    panel.add(new JLabel(&quot;Contact Number&quot;));</span>
+<span class="fc" id="L91">    panel.add(jtFields[1]);</span>
+<span class="fc" id="L92">    panel.add(new JLabel(&quot;Address&quot;));</span>
+<span class="fc" id="L93">    panel.add(jtAreas[0]);</span>
+<span class="fc" id="L94">    panel.add(new JLabel(&quot;Deposit Number&quot;));</span>
+<span class="fc" id="L95">    panel.add(jtFields[2]);</span>
+<span class="fc" id="L96">    panel.add(new JLabel(&quot;Order&quot;));</span>
+<span class="fc" id="L97">    panel.add(jtAreas[1]);</span>
+<span class="fc" id="L98">    panel.add(clearButton);</span>
+<span class="fc" id="L99">    panel.add(processButton);</span>
+
+<span class="fc" id="L101">    clearButton.addActionListener(e -&gt; {</span>
+<span class="nc" id="L102">      Arrays.stream(jtAreas).forEach(i -&gt; i.setText(&quot;&quot;));</span>
+<span class="nc" id="L103">      Arrays.stream(jtFields).forEach(i -&gt; i.setText(&quot;&quot;));</span>
+<span class="nc" id="L104">    });</span>
+
+<span class="fc" id="L106">    processButton.addActionListener(this::actionPerformed);</span>
+
+<span class="fc" id="L108">    JRootPane rootPane = SwingUtilities.getRootPane(processButton);</span>
+<span class="fc" id="L109">    rootPane.setDefaultButton(processButton);</span>
+<span class="fc" id="L110">    setVisible(true);</span>
+<span class="fc" id="L111">  }</span>
+
+  public void setFilterManager(FilterManager filterManager) {
+<span class="fc" id="L114">    this.filterManager = filterManager;</span>
+<span class="fc" id="L115">  }</span>
+
+  public String sendRequest(Order order) {
+<span class="nc" id="L118">    return filterManager.filterRequest(order);</span>
+  }
+
+  private void actionPerformed(ActionEvent e) {
+<span class="nc" id="L122">    var fieldText1 = jtFields[0].getText();</span>
+<span class="nc" id="L123">    var fieldText2 = jtFields[1].getText();</span>
+<span class="nc" id="L124">    var areaText1 = jtAreas[0].getText();</span>
+<span class="nc" id="L125">    var fieldText3 = jtFields[2].getText();</span>
+<span class="nc" id="L126">    var areaText2 = jtAreas[1].getText();</span>
+<span class="nc" id="L127">    var order = new Order(fieldText1, fieldText2, areaText1, fieldText3, areaText2);</span>
+<span class="nc" id="L128">    jl.setText(sendRequest(order));</span>
+<span class="nc" id="L129">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,6 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.transactionscript,HotelDaoImpl.new Spliterators.AbstractSpliterator() {...},6,26,0,2,2,5,0,3,0,2
+JaCoCo Coverage Report,com.iluwatar.transactionscript,App,11,172,0,2,3,46,1,10,1,9
+JaCoCo Coverage Report,com.iluwatar.transactionscript,Hotel,0,96,0,8,0,26,0,8,0,4
+JaCoCo Coverage Report,com.iluwatar.transactionscript,Room,8,120,5,9,3,33,5,14,0,12
+JaCoCo Coverage Report,com.iluwatar.transactionscript,HotelDaoImpl,21,249,2,12,6,62,2,16,0,11

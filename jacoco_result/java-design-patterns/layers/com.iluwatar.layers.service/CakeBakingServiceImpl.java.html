@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CakeBakingServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.layers.service</a> &gt; <span class="el_source">CakeBakingServiceImpl.java</span></div><h1>CakeBakingServiceImpl.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.layers.service;
+
+import com.iluwatar.layers.dao.CakeDao;
+import com.iluwatar.layers.dao.CakeLayerDao;
+import com.iluwatar.layers.dao.CakeToppingDao;
+import com.iluwatar.layers.dto.CakeInfo;
+import com.iluwatar.layers.dto.CakeLayerInfo;
+import com.iluwatar.layers.dto.CakeToppingInfo;
+import com.iluwatar.layers.entity.Cake;
+import com.iluwatar.layers.entity.CakeLayer;
+import com.iluwatar.layers.entity.CakeTopping;
+import com.iluwatar.layers.exception.CakeBakingException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * Implementation of CakeBakingService.
+ */
+@Service
+@Transactional
+public class CakeBakingServiceImpl implements CakeBakingService {
+
+  private final AbstractApplicationContext context;
+
+<span class="fc" id="L55">  public CakeBakingServiceImpl() {</span>
+<span class="fc" id="L56">    this.context = new ClassPathXmlApplicationContext(&quot;applicationContext.xml&quot;);</span>
+<span class="fc" id="L57">  }</span>
+
+  @Override
+  public void bakeNewCake(CakeInfo cakeInfo) throws CakeBakingException {
+<span class="fc" id="L61">    var allToppings = getAvailableToppingEntities();</span>
+<span class="fc" id="L62">    var matchingToppings =</span>
+<span class="fc" id="L63">        allToppings.stream().filter(t -&gt; t.getName().equals(cakeInfo.cakeToppingInfo.name))</span>
+<span class="fc" id="L64">            .collect(Collectors.toList());</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">    if (matchingToppings.isEmpty()) {</span>
+<span class="fc" id="L66">      throw new CakeBakingException(String.format(&quot;Topping %s is not available&quot;,</span>
+          cakeInfo.cakeToppingInfo.name));
+    }
+<span class="fc" id="L69">    var allLayers = getAvailableLayerEntities();</span>
+<span class="fc" id="L70">    Set&lt;CakeLayer&gt; foundLayers = new HashSet&lt;&gt;();</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">    for (var info : cakeInfo.cakeLayerInfos) {</span>
+<span class="fc" id="L72">      var found = allLayers.stream().filter(layer -&gt; layer.getName().equals(info.name)).findFirst();</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">      if (found.isEmpty()) {</span>
+<span class="fc" id="L74">        throw new CakeBakingException(String.format(&quot;Layer %s is not available&quot;, info.name));</span>
+      } else {
+<span class="fc" id="L76">        foundLayers.add(found.get());</span>
+      }
+<span class="fc" id="L78">    }</span>
+<span class="fc" id="L79">    var toppingBean = context.getBean(CakeToppingDao.class);</span>
+<span class="fc" id="L80">    var topping = toppingBean.findById(matchingToppings.iterator().next().getId());</span>
+<span class="fc" id="L81">    var cakeBean = context.getBean(CakeDao.class);</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">    if (topping.isPresent()) {</span>
+<span class="fc" id="L83">      var cake = new Cake();</span>
+<span class="fc" id="L84">      cake.setTopping(topping.get());</span>
+<span class="fc" id="L85">      cake.setLayers(foundLayers);</span>
+<span class="fc" id="L86">      cakeBean.save(cake);</span>
+<span class="fc" id="L87">      topping.get().setCake(cake);</span>
+<span class="fc" id="L88">      toppingBean.save(topping.get());</span>
+<span class="fc" id="L89">      var layerBean = context.getBean(CakeLayerDao.class);</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">      for (var layer : foundLayers) {</span>
+<span class="fc" id="L91">        layer.setCake(cake);</span>
+<span class="fc" id="L92">        layerBean.save(layer);</span>
+<span class="fc" id="L93">      }</span>
+<span class="fc" id="L94">    } else {</span>
+<span class="nc" id="L95">      throw new CakeBakingException(String.format(&quot;Topping %s is not available&quot;,</span>
+          cakeInfo.cakeToppingInfo.name));
+    }
+<span class="fc" id="L98">  }</span>
+
+  @Override
+  public void saveNewTopping(CakeToppingInfo toppingInfo) {
+<span class="fc" id="L102">    var bean = context.getBean(CakeToppingDao.class);</span>
+<span class="fc" id="L103">    bean.save(new CakeTopping(toppingInfo.name, toppingInfo.calories));</span>
+<span class="fc" id="L104">  }</span>
+
+  @Override
+  public void saveNewLayer(CakeLayerInfo layerInfo) {
+<span class="fc" id="L108">    var bean = context.getBean(CakeLayerDao.class);</span>
+<span class="fc" id="L109">    bean.save(new CakeLayer(layerInfo.name, layerInfo.calories));</span>
+<span class="fc" id="L110">  }</span>
+
+  private List&lt;CakeTopping&gt; getAvailableToppingEntities() {
+<span class="fc" id="L113">    var bean = context.getBean(CakeToppingDao.class);</span>
+<span class="fc" id="L114">    List&lt;CakeTopping&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">    for (CakeTopping topping : bean.findAll()) {</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">      if (topping.getCake() == null) {</span>
+<span class="fc" id="L117">        result.add(topping);</span>
+      }
+<span class="fc" id="L119">    }</span>
+<span class="fc" id="L120">    return result;</span>
+  }
+
+  @Override
+  public List&lt;CakeToppingInfo&gt; getAvailableToppings() {
+<span class="fc" id="L125">    var bean = context.getBean(CakeToppingDao.class);</span>
+<span class="fc" id="L126">    List&lt;CakeToppingInfo&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">    for (CakeTopping next : bean.findAll()) {</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">      if (next.getCake() == null) {</span>
+<span class="fc" id="L129">        result.add(new CakeToppingInfo(next.getId(), next.getName(), next.getCalories()));</span>
+      }
+<span class="fc" id="L131">    }</span>
+<span class="fc" id="L132">    return result;</span>
+  }
+
+  private List&lt;CakeLayer&gt; getAvailableLayerEntities() {
+<span class="fc" id="L136">    var bean = context.getBean(CakeLayerDao.class);</span>
+<span class="fc" id="L137">    List&lt;CakeLayer&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">    for (CakeLayer next : bean.findAll()) {</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">      if (next.getCake() == null) {</span>
+<span class="fc" id="L140">        result.add(next);</span>
+      }
+<span class="fc" id="L142">    }</span>
+<span class="fc" id="L143">    return result;</span>
+  }
+
+  @Override
+  public List&lt;CakeLayerInfo&gt; getAvailableLayers() {
+<span class="fc" id="L148">    var bean = context.getBean(CakeLayerDao.class);</span>
+<span class="fc" id="L149">    List&lt;CakeLayerInfo&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">    for (CakeLayer next : bean.findAll()) {</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">      if (next.getCake() == null) {</span>
+<span class="fc" id="L152">        result.add(new CakeLayerInfo(next.getId(), next.getName(), next.getCalories()));</span>
+      }
+<span class="fc" id="L154">    }</span>
+<span class="fc" id="L155">    return result;</span>
+  }
+
+  @Override
+  public List&lt;CakeInfo&gt; getAllCakes() {
+<span class="fc" id="L160">    var cakeBean = context.getBean(CakeDao.class);</span>
+<span class="fc" id="L161">    List&lt;CakeInfo&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">    for (Cake cake : cakeBean.findAll()) {</span>
+<span class="fc" id="L163">      var cakeToppingInfo =</span>
+<span class="fc" id="L164">          new CakeToppingInfo(cake.getTopping().getId(), cake.getTopping().getName(), cake</span>
+<span class="fc" id="L165">              .getTopping().getCalories());</span>
+<span class="fc" id="L166">      List&lt;CakeLayerInfo&gt; cakeLayerInfos = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">      for (var layer : cake.getLayers()) {</span>
+<span class="fc" id="L168">        cakeLayerInfos.add(new CakeLayerInfo(layer.getId(), layer.getName(), layer.getCalories()));</span>
+<span class="fc" id="L169">      }</span>
+<span class="fc" id="L170">      var cakeInfo = new CakeInfo(cake.getId(), cakeToppingInfo, cakeLayerInfos);</span>
+<span class="fc" id="L171">      result.add(cakeInfo);</span>
+<span class="fc" id="L172">    }</span>
+<span class="fc" id="L173">    return result;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

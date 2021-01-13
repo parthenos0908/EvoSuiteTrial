@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.layers.app</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.layers.app;
+
+import com.iluwatar.layers.dao.CakeDao;
+import com.iluwatar.layers.dao.CakeLayerDao;
+import com.iluwatar.layers.dao.CakeToppingDao;
+import com.iluwatar.layers.dto.CakeInfo;
+import com.iluwatar.layers.dto.CakeLayerInfo;
+import com.iluwatar.layers.dto.CakeToppingInfo;
+import com.iluwatar.layers.entity.Cake;
+import com.iluwatar.layers.entity.CakeLayer;
+import com.iluwatar.layers.entity.CakeTopping;
+import com.iluwatar.layers.exception.CakeBakingException;
+import com.iluwatar.layers.service.CakeBakingService;
+import com.iluwatar.layers.service.CakeBakingServiceImpl;
+import com.iluwatar.layers.view.CakeViewImpl;
+import java.util.List;
+
+/**
+ * Layers is an architectural style where software responsibilities are divided among the
+ * different layers of the application.
+ *
+ * &lt;p&gt;This example demonstrates a traditional 3-layer architecture consisting of data access
+ * layer, business layer and presentation layer.
+ *
+ * &lt;p&gt;The data access layer is formed of Spring Data repositories &lt;code&gt;CakeDao&lt;/code&gt;,
+ * &lt;code&gt;CakeToppingDao&lt;/code&gt; and &lt;code&gt;CakeLayerDao&lt;/code&gt;. The repositories can be used
+ * for CRUD operations on cakes, cake toppings and cake layers respectively.
+ *
+ * &lt;p&gt;The business layer is built on top of the data access layer. &lt;code&gt;CakeBakingService&lt;/code&gt;
+ * offers methods to retrieve available cake toppings and cake layers and baked cakes. Also the
+ * service is used to create new cakes out of cake toppings and cake layers.
+ *
+ * &lt;p&gt;The presentation layer is built on the business layer and in this example it simply lists
+ * the cakes that have been baked.
+ *
+ * &lt;p&gt;We have applied so called strict layering which means that the layers can only access the
+ * classes directly beneath them. This leads the solution to create an additional set of DTOs
+ * ( &lt;code&gt;CakeInfo&lt;/code&gt;, &lt;code&gt;CakeToppingInfo&lt;/code&gt;, &lt;code&gt;CakeLayerInfo&lt;/code&gt;) to translate
+ * data between layers. In other words, &lt;code&gt;CakeBakingService&lt;/code&gt; cannot return entities
+ * ( &lt;code&gt;Cake&lt;/code&gt;, &lt;code&gt;CakeTopping&lt;/code&gt;, &lt;code&gt;CakeLayer&lt;/code&gt;) directly since these
+ * reside on data access layer but instead translates these into business layer DTOs
+ * (&lt;code&gt;CakeInfo&lt;/code&gt;, &lt;code&gt;CakeToppingInfo&lt;/code&gt;, &lt;code&gt;CakeLayerInfo&lt;/code&gt;) and returns
+ * them instead. This way the presentation layer does not have any knowledge of other layers than
+ * the business layer and thus is not affected by changes to them.
+ *
+ * @see Cake
+ * @see CakeTopping
+ * @see CakeLayer
+ * @see CakeDao
+ * @see CakeToppingDao
+ * @see CakeLayerDao
+ * @see CakeBakingService
+ * @see CakeInfo
+ * @see CakeToppingInfo
+ * @see CakeLayerInfo
+ *
+ */
+<span class="nc" id="L81">public class App {</span>
+
+<span class="fc" id="L83">  private static final CakeBakingService cakeBakingService = new CakeBakingServiceImpl();</span>
+  public static final String STRAWBERRY = &quot;strawberry&quot;;
+
+  /**
+   * Application entry point.
+   *
+   * @param args Command line parameters
+   */
+  public static void main(String[] args) {
+
+    // initialize example data
+<span class="fc" id="L94">    initializeData(cakeBakingService);</span>
+
+    // create view and render it
+<span class="fc" id="L97">    var cakeView = new CakeViewImpl(cakeBakingService);</span>
+<span class="fc" id="L98">    cakeView.render();</span>
+<span class="fc" id="L99">  }</span>
+
+  /**
+   * Initializes the example data.
+   */
+  private static void initializeData(CakeBakingService cakeBakingService) {
+<span class="fc" id="L105">    cakeBakingService.saveNewLayer(new CakeLayerInfo(&quot;chocolate&quot;, 1200));</span>
+<span class="fc" id="L106">    cakeBakingService.saveNewLayer(new CakeLayerInfo(&quot;banana&quot;, 900));</span>
+<span class="fc" id="L107">    cakeBakingService.saveNewLayer(new CakeLayerInfo(STRAWBERRY, 950));</span>
+<span class="fc" id="L108">    cakeBakingService.saveNewLayer(new CakeLayerInfo(&quot;lemon&quot;, 950));</span>
+<span class="fc" id="L109">    cakeBakingService.saveNewLayer(new CakeLayerInfo(&quot;vanilla&quot;, 950));</span>
+<span class="fc" id="L110">    cakeBakingService.saveNewLayer(new CakeLayerInfo(STRAWBERRY, 950));</span>
+
+<span class="fc" id="L112">    cakeBakingService.saveNewTopping(new CakeToppingInfo(&quot;candies&quot;, 350));</span>
+<span class="fc" id="L113">    cakeBakingService.saveNewTopping(new CakeToppingInfo(&quot;cherry&quot;, 350));</span>
+
+<span class="fc" id="L115">    var cake1 = new CakeInfo(new CakeToppingInfo(&quot;candies&quot;, 0), List.of(</span>
+        new CakeLayerInfo(&quot;chocolate&quot;, 0),
+        new CakeLayerInfo(&quot;banana&quot;, 0),
+        new CakeLayerInfo(STRAWBERRY, 0)));
+    try {
+<span class="fc" id="L120">      cakeBakingService.bakeNewCake(cake1);</span>
+<span class="nc" id="L121">    } catch (CakeBakingException e) {</span>
+<span class="nc" id="L122">      e.printStackTrace();</span>
+<span class="fc" id="L123">    }</span>
+<span class="fc" id="L124">    var cake2 = new CakeInfo(new CakeToppingInfo(&quot;cherry&quot;, 0), List.of(</span>
+        new CakeLayerInfo(&quot;vanilla&quot;, 0),
+        new CakeLayerInfo(&quot;lemon&quot;, 0),
+        new CakeLayerInfo(STRAWBERRY, 0)));
+    try {
+<span class="fc" id="L129">      cakeBakingService.bakeNewCake(cake2);</span>
+<span class="nc" id="L130">    } catch (CakeBakingException e) {</span>
+<span class="nc" id="L131">      e.printStackTrace();</span>
+<span class="fc" id="L132">    }</span>
+<span class="fc" id="L133">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

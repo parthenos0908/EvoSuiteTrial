@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Cell.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.typeobject</a> &gt; <span class="el_source">Cell.java</span></div><h1>Cell.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.typeobject;
+
+import com.iluwatar.typeobject.Candy.Type;
+
+/**
+ * The Cell object is what the game matrix is made of and contains the candy which is to be crushed
+ * or collected as reward.
+ */
+public class Cell {
+  Candy candy;
+  int positionX;
+  int positionY;
+
+<span class="fc" id="L37">  Cell(Candy candy, int positionX, int positionY) {</span>
+<span class="fc" id="L38">    this.candy = candy;</span>
+<span class="fc" id="L39">    this.positionX = positionX;</span>
+<span class="fc" id="L40">    this.positionY = positionY;</span>
+<span class="fc" id="L41">  }</span>
+
+<span class="fc" id="L43">  Cell() {</span>
+<span class="fc" id="L44">    this.candy = null;</span>
+<span class="fc" id="L45">    this.positionX = 0;</span>
+<span class="fc" id="L46">    this.positionY = 0;</span>
+<span class="fc" id="L47">  }</span>
+
+  void crush(CellPool pool, Cell[][] cellMatrix) {
+    //take out from this position and put back in pool
+<span class="fc" id="L51">    pool.addNewCell(this);</span>
+<span class="fc" id="L52">    this.fillThisSpace(pool, cellMatrix);</span>
+<span class="fc" id="L53">  }</span>
+
+  void fillThisSpace(CellPool pool, Cell[][] cellMatrix) {
+<span class="fc bfc" id="L56" title="All 2 branches covered.">    for (var y = this.positionY; y &gt; 0; y--) {</span>
+<span class="fc" id="L57">      cellMatrix[y][this.positionX] = cellMatrix[y - 1][this.positionX];</span>
+<span class="fc" id="L58">      cellMatrix[y][this.positionX].positionY = y;</span>
+    }
+<span class="fc" id="L60">    var newC = pool.getNewCell();</span>
+<span class="fc" id="L61">    cellMatrix[0][this.positionX] = newC;</span>
+<span class="fc" id="L62">    cellMatrix[0][this.positionX].positionX = this.positionX;</span>
+<span class="fc" id="L63">    cellMatrix[0][this.positionX].positionY = 0;</span>
+<span class="fc" id="L64">  }</span>
+
+  void handleCrush(Cell c, CellPool pool, Cell[][] cellMatrix) {
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">    if (this.positionY &gt;= c.positionY) {</span>
+<span class="fc" id="L68">      this.crush(pool, cellMatrix);</span>
+<span class="fc" id="L69">      c.crush(pool, cellMatrix);</span>
+    } else {
+<span class="nc" id="L71">      c.crush(pool, cellMatrix);</span>
+<span class="nc" id="L72">      this.crush(pool, cellMatrix);</span>
+    }
+<span class="fc" id="L74">  }</span>
+
+  int interact(Cell c, CellPool pool, Cell[][] cellMatrix) {
+<span class="fc bfc" id="L77" title="All 2 branches covered.">    if (this.candy.getType().equals(Type.REWARD_FRUIT) || c.candy.getType()</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        .equals(Type.REWARD_FRUIT)) {</span>
+<span class="fc" id="L79">      return 0;</span>
+    } else {
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">      if (this.candy.name.equals(c.candy.name)) {</span>
+<span class="fc" id="L82">        var pointsWon = this.candy.getPoints() + c.candy.getPoints();</span>
+<span class="fc" id="L83">        handleCrush(c, pool, cellMatrix);</span>
+<span class="fc" id="L84">        return pointsWon;</span>
+      } else {
+<span class="nc" id="L86">        return 0;</span>
+      }
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

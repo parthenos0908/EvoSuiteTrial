@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AggregatorRoute.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.eip.aggregator.routes</a> &gt; <span class="el_source">AggregatorRoute.java</span></div><h1>AggregatorRoute.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.eip.aggregator.routes;
+
+import org.apache.camel.builder.RouteBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+/**
+ * Sample aggregator route definition.
+ *
+ * &lt;p&gt;It consumes messages out of the &lt;i&gt;direct:entry&lt;/i&gt; entry point and forwards them to
+ * &lt;i&gt;direct:endpoint&lt;/i&gt;. Route accepts messages containing String as a body, it aggregates the
+ * messages based on the settings and forwards them as CSV to the output chanel.
+ *
+ * &lt;p&gt;Settings for the aggregation are: aggregate until 3 messages are bundled or wait 2000ms
+ * before sending bundled messages further.
+ *
+ * &lt;p&gt;In this example input/output endpoints names are stored in &lt;i&gt;application.properties&lt;/i&gt;
+ * file.
+ */
+@Component
+<span class="fc" id="L44">public class AggregatorRoute extends RouteBuilder {</span>
+
+  @Autowired
+  private MessageAggregationStrategy aggregator;
+
+  /**
+   * Configures the route.
+   */
+  @Override
+  public void configure() {
+    // Main route
+<span class="fc" id="L55">    from(&quot;{{entry}}&quot;).aggregate(constant(true), aggregator)</span>
+<span class="fc" id="L56">        .completionSize(3).completionInterval(2000)</span>
+<span class="fc" id="L57">        .to(&quot;{{endpoint}}&quot;);</span>
+<span class="fc" id="L58">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

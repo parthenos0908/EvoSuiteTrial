@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CacheStore.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.caching</a> &gt; <span class="el_source">CacheStore.java</span></div><h1>CacheStore.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.caching;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * The caching strategies are implemented in this class.
+ */
+public class CacheStore {
+
+<span class="fc" id="L37">  private static final Logger LOGGER = LoggerFactory.getLogger(CacheStore.class);</span>
+
+  private static LruCache cache;
+
+  private CacheStore() {
+  }
+
+  /**
+   * Init cache capacity.
+   */
+  public static void initCapacity(int capacity) {
+<span class="fc bfc" id="L48" title="All 2 branches covered.">    if (cache == null) {</span>
+<span class="fc" id="L49">      cache = new LruCache(capacity);</span>
+    } else {
+<span class="fc" id="L51">      cache.setCapacity(capacity);</span>
+    }
+<span class="fc" id="L53">  }</span>
+
+  /**
+   * Get user account using read-through cache.
+   */
+  public static UserAccount readThrough(String userId) {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">    if (cache.contains(userId)) {</span>
+<span class="fc" id="L60">      LOGGER.info(&quot;# Cache Hit!&quot;);</span>
+<span class="fc" id="L61">      return cache.get(userId);</span>
+    }
+<span class="fc" id="L63">    LOGGER.info(&quot;# Cache Miss!&quot;);</span>
+<span class="fc" id="L64">    UserAccount userAccount = DbManager.readFromDb(userId);</span>
+<span class="fc" id="L65">    cache.set(userId, userAccount);</span>
+<span class="fc" id="L66">    return userAccount;</span>
+  }
+
+  /**
+   * Get user account using write-through cache.
+   */
+  public static void writeThrough(UserAccount userAccount) {
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">    if (cache.contains(userAccount.getUserId())) {</span>
+<span class="nc" id="L74">      DbManager.updateDb(userAccount);</span>
+    } else {
+<span class="fc" id="L76">      DbManager.writeToDb(userAccount);</span>
+    }
+<span class="fc" id="L78">    cache.set(userAccount.getUserId(), userAccount);</span>
+<span class="fc" id="L79">  }</span>
+
+  /**
+   * Get user account using write-around cache.
+   */
+  public static void writeAround(UserAccount userAccount) {
+<span class="fc bfc" id="L85" title="All 2 branches covered.">    if (cache.contains(userAccount.getUserId())) {</span>
+<span class="fc" id="L86">      DbManager.updateDb(userAccount);</span>
+<span class="fc" id="L87">      cache.invalidate(userAccount.getUserId()); // Cache data has been updated -- remove older</span>
+      // version from cache.
+    } else {
+<span class="fc" id="L90">      DbManager.writeToDb(userAccount);</span>
+    }
+<span class="fc" id="L92">  }</span>
+
+  /**
+   * Get user account using read-through cache with write-back policy.
+   */
+  public static UserAccount readThroughWithWriteBackPolicy(String userId) {
+<span class="fc bfc" id="L98" title="All 2 branches covered.">    if (cache.contains(userId)) {</span>
+<span class="fc" id="L99">      LOGGER.info(&quot;# Cache Hit!&quot;);</span>
+<span class="fc" id="L100">      return cache.get(userId);</span>
+    }
+<span class="fc" id="L102">    LOGGER.info(&quot;# Cache Miss!&quot;);</span>
+<span class="fc" id="L103">    UserAccount userAccount = DbManager.readFromDb(userId);</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">    if (cache.isFull()) {</span>
+<span class="fc" id="L105">      LOGGER.info(&quot;# Cache is FULL! Writing LRU data to DB...&quot;);</span>
+<span class="fc" id="L106">      UserAccount toBeWrittenToDb = cache.getLruData();</span>
+<span class="fc" id="L107">      DbManager.upsertDb(toBeWrittenToDb);</span>
+    }
+<span class="fc" id="L109">    cache.set(userId, userAccount);</span>
+<span class="fc" id="L110">    return userAccount;</span>
+  }
+
+  /**
+   * Set user account.
+   */
+  public static void writeBehind(UserAccount userAccount) {
+<span class="pc bpc" id="L117" title="1 of 4 branches missed.">    if (cache.isFull() &amp;&amp; !cache.contains(userAccount.getUserId())) {</span>
+<span class="fc" id="L118">      LOGGER.info(&quot;# Cache is FULL! Writing LRU data to DB...&quot;);</span>
+<span class="fc" id="L119">      UserAccount toBeWrittenToDb = cache.getLruData();</span>
+<span class="fc" id="L120">      DbManager.upsertDb(toBeWrittenToDb);</span>
+    }
+<span class="fc" id="L122">    cache.set(userAccount.getUserId(), userAccount);</span>
+<span class="fc" id="L123">  }</span>
+
+  /**
+   * Clears cache.
+   */
+  public static void clearCache() {
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">    if (cache != null) {</span>
+<span class="fc" id="L130">      cache.clear();</span>
+    }
+<span class="fc" id="L132">  }</span>
+
+  /**
+   * Writes remaining content in the cache into the DB.
+   */
+  public static void flushCache() {
+<span class="fc" id="L138">    LOGGER.info(&quot;# flushCache...&quot;);</span>
+<span class="fc" id="L139">    Optional.ofNullable(cache)</span>
+<span class="fc" id="L140">        .map(LruCache::getCacheDataInListForm)</span>
+<span class="fc" id="L141">        .orElse(List.of())</span>
+<span class="fc" id="L142">        .forEach(DbManager::updateDb);</span>
+<span class="fc" id="L143">  }</span>
+
+  /**
+   * Print user accounts.
+   */
+  public static String print() {
+<span class="fc" id="L149">    return Optional.ofNullable(cache)</span>
+<span class="fc" id="L150">        .map(LruCache::getCacheDataInListForm)</span>
+<span class="fc" id="L151">        .orElse(List.of())</span>
+<span class="fc" id="L152">        .stream()</span>
+<span class="fc" id="L153">        .map(userAccount -&gt; userAccount.toString() + &quot;\n&quot;)</span>
+<span class="fc" id="L154">        .collect(Collectors.joining(&quot;&quot;, &quot;\n--CACHE CONTENT--\n&quot;, &quot;----\n&quot;));</span>
+  }
+
+  /**
+   * Delegate to backing cache store.
+   */
+  public static UserAccount get(String userId) {
+<span class="fc" id="L161">    return cache.get(userId);</span>
+  }
+
+  /**
+   * Delegate to backing cache store.
+   */
+  public static void set(String userId, UserAccount userAccount) {
+<span class="fc" id="L168">    cache.set(userId, userAccount);</span>
+<span class="fc" id="L169">  }</span>
+
+  /**
+   * Delegate to backing cache store.
+   */
+  public static void invalidate(String userId) {
+<span class="fc" id="L175">    cache.invalidate(userId);</span>
+<span class="fc" id="L176">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

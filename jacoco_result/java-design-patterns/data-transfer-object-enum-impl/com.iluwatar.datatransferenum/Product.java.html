@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Product.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.datatransferenum</a> &gt; <span class="el_source">Product.java</span></div><h1>Product.java</h1><pre class="source lang-java linenums">package com.iluwatar.datatransferenum;
+
+/**
+ * {@link Product} is a entity class for product entity. This class act as entity in the demo.
+ */
+public final class Product {
+  private Long id;
+  private String name;
+  private Double price;
+  private Double cost;
+  private String supplier;
+
+  /**
+   * Constructor.
+   *
+   * @param id       product id
+   * @param name     product name
+   * @param price    product price
+   * @param cost     product cost
+   * @param supplier product supplier
+   */
+<span class="nc" id="L22">  public Product(Long id, String name, Double price, Double cost, String supplier) {</span>
+<span class="nc" id="L23">    this.id = id;</span>
+<span class="nc" id="L24">    this.name = name;</span>
+<span class="nc" id="L25">    this.price = price;</span>
+<span class="nc" id="L26">    this.cost = cost;</span>
+<span class="nc" id="L27">    this.supplier = supplier;</span>
+<span class="nc" id="L28">  }</span>
+
+  /**
+   * Constructor.
+   */
+<span class="fc" id="L33">  public Product() {</span>
+<span class="fc" id="L34">  }</span>
+
+  public Long getId() {
+<span class="fc" id="L37">    return id;</span>
+  }
+
+  public Product setId(Long id) {
+<span class="fc" id="L41">    this.id = id;</span>
+<span class="fc" id="L42">    return this;</span>
+  }
+
+  public String getName() {
+<span class="fc" id="L46">    return name;</span>
+  }
+
+  public Product setName(String name) {
+<span class="fc" id="L50">    this.name = name;</span>
+<span class="fc" id="L51">    return this;</span>
+  }
+
+  public Double getPrice() {
+<span class="fc" id="L55">    return price;</span>
+  }
+
+  public Product setPrice(Double price) {
+<span class="fc" id="L59">    this.price = price;</span>
+<span class="fc" id="L60">    return this;</span>
+  }
+
+  public Double getCost() {
+<span class="fc" id="L64">    return cost;</span>
+  }
+
+  public Product setCost(Double cost) {
+<span class="fc" id="L68">    this.cost = cost;</span>
+<span class="fc" id="L69">    return this;</span>
+  }
+
+  public String getSupplier() {
+<span class="nc" id="L73">    return supplier;</span>
+  }
+
+  public Product setSupplier(String supplier) {
+<span class="fc" id="L77">    this.supplier = supplier;</span>
+<span class="fc" id="L78">    return this;</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="fc" id="L83">    return &quot;Product{&quot;</span>
+        + &quot;id=&quot; + id
+        + &quot;, name='&quot; + name + '\''
+        + &quot;, price=&quot; + price
+        + &quot;, cost=&quot; + cost
+        + &quot;, supplier='&quot; + supplier + '\''
+        + '}';
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.reader.writer.lock</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.reader.writer.lock;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * In a multiple thread applications, the threads may try to synchronize the shared resources
+ * regardless of read or write operation. It leads to a low performance especially in a &quot;read more
+ * write less&quot; system as indeed the read operations are thread-safe to another read operation.
+ *
+ * &lt;p&gt;Reader writer lock is a synchronization primitive that try to resolve this problem. This
+ * pattern allows concurrent access for read-only operations, while write operations require
+ * exclusive access. This means that multiple threads can read the data in parallel but an exclusive
+ * lock is needed for writing or modifying data. When a writer is writing the data, all other
+ * writers or readers will be blocked until the writer is finished writing.
+ *
+ * &lt;p&gt;This example use two mutex to demonstrate the concurrent access of multiple readers and
+ * writers.
+ *
+ * @author hongshuwei@gmail.com
+ */
+<span class="nc" id="L48">public class App {</span>
+
+<span class="fc" id="L50">  private static final Logger LOGGER = LoggerFactory.getLogger(App.class);</span>
+
+  /**
+   * Program entry point.
+   *
+   * @param args command line args
+   */
+  public static void main(String[] args) {
+
+<span class="fc" id="L59">    var executeService = Executors.newFixedThreadPool(10);</span>
+<span class="fc" id="L60">    var lock = new ReaderWriterLock();</span>
+
+    // Start writers
+<span class="fc bfc" id="L63" title="All 2 branches covered.">    for (var i = 0; i &lt; 5; i++) {</span>
+<span class="fc" id="L64">      var writingTime = ThreadLocalRandom.current().nextLong(5000);</span>
+<span class="fc" id="L65">      executeService.submit(new Writer(&quot;Writer &quot; + i, lock.writeLock(), writingTime));</span>
+    }
+<span class="fc" id="L67">    LOGGER.info(&quot;Writers added...&quot;);</span>
+
+    // Start readers
+<span class="fc bfc" id="L70" title="All 2 branches covered.">    for (var i = 0; i &lt; 5; i++) {</span>
+<span class="fc" id="L71">      var readingTime = ThreadLocalRandom.current().nextLong(10);</span>
+<span class="fc" id="L72">      executeService.submit(new Reader(&quot;Reader &quot; + i, lock.readLock(), readingTime));</span>
+    }
+<span class="fc" id="L74">    LOGGER.info(&quot;Readers added...&quot;);</span>
+
+    try {
+<span class="fc" id="L77">      Thread.sleep(5000L);</span>
+<span class="nc" id="L78">    } catch (InterruptedException e) {</span>
+<span class="nc" id="L79">      LOGGER.error(&quot;Error sleeping before adding more readers&quot;, e);</span>
+<span class="nc" id="L80">      Thread.currentThread().interrupt();</span>
+<span class="fc" id="L81">    }</span>
+
+    // Start readers
+<span class="fc bfc" id="L84" title="All 2 branches covered.">    for (var i = 6; i &lt; 10; i++) {</span>
+<span class="fc" id="L85">      var readingTime = ThreadLocalRandom.current().nextLong(10);</span>
+<span class="fc" id="L86">      executeService.submit(new Reader(&quot;Reader &quot; + i, lock.readLock(), readingTime));</span>
+    }
+<span class="fc" id="L88">    LOGGER.info(&quot;More readers added...&quot;);</span>
+
+
+    // In the system console, it can see that the read operations are executed concurrently while
+    // write operations are exclusive.
+<span class="fc" id="L93">    executeService.shutdown();</span>
+    try {
+<span class="fc" id="L95">      executeService.awaitTermination(5, TimeUnit.SECONDS);</span>
+<span class="nc" id="L96">    } catch (InterruptedException e) {</span>
+<span class="nc" id="L97">      LOGGER.error(&quot;Error waiting for ExecutorService shutdown&quot;, e);</span>
+<span class="nc" id="L98">      Thread.currentThread().interrupt();</span>
+<span class="fc" id="L99">    }</span>
+
+<span class="fc" id="L101">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

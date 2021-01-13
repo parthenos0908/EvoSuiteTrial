@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MongoBank.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.hexagonal.banking</a> &gt; <span class="el_source">MongoBank.java</span></div><h1>MongoBank.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.hexagonal.banking;
+
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.UpdateOptions;
+import java.util.ArrayList;
+import org.bson.Document;
+
+/**
+ * Mongo based banking adapter.
+ */
+public class MongoBank implements WireTransfers {
+
+  private static final String DEFAULT_DB = &quot;lotteryDB&quot;;
+  private static final String DEFAULT_ACCOUNTS_COLLECTION = &quot;accounts&quot;;
+
+  private MongoClient mongoClient;
+  private MongoDatabase database;
+  private MongoCollection&lt;Document&gt; accountsCollection;
+
+  /**
+   * Constructor.
+   */
+<span class="nc" id="L48">  public MongoBank() {</span>
+<span class="nc" id="L49">    connect();</span>
+<span class="nc" id="L50">  }</span>
+
+  /**
+   * Constructor accepting parameters.
+   */
+<span class="nc" id="L55">  public MongoBank(String dbName, String accountsCollectionName) {</span>
+<span class="nc" id="L56">    connect(dbName, accountsCollectionName);</span>
+<span class="nc" id="L57">  }</span>
+
+  /**
+   * Connect to database with default parameters.
+   */
+  public void connect() {
+<span class="nc" id="L63">    connect(DEFAULT_DB, DEFAULT_ACCOUNTS_COLLECTION);</span>
+<span class="nc" id="L64">  }</span>
+
+  /**
+   * Connect to database with given parameters.
+   */
+  public void connect(String dbName, String accountsCollectionName) {
+<span class="nc bnc" id="L70" title="All 2 branches missed.">    if (mongoClient != null) {</span>
+<span class="nc" id="L71">      mongoClient.close();</span>
+    }
+<span class="nc" id="L73">    mongoClient = new MongoClient(System.getProperty(&quot;mongo-host&quot;),</span>
+<span class="nc" id="L74">        Integer.parseInt(System.getProperty(&quot;mongo-port&quot;)));</span>
+<span class="nc" id="L75">    database = mongoClient.getDatabase(dbName);</span>
+<span class="nc" id="L76">    accountsCollection = database.getCollection(accountsCollectionName);</span>
+<span class="nc" id="L77">  }</span>
+
+  /**
+   * Get mongo client.
+   *
+   * @return mongo client
+   */
+  public MongoClient getMongoClient() {
+<span class="nc" id="L85">    return mongoClient;</span>
+  }
+
+  /**
+   * Get mongo database.
+   *
+   * @return mongo database
+   */
+  public MongoDatabase getMongoDatabase() {
+<span class="nc" id="L94">    return database;</span>
+  }
+
+  /**
+   * Get accounts collection.
+   *
+   * @return accounts collection
+   */
+  public MongoCollection&lt;Document&gt; getAccountsCollection() {
+<span class="nc" id="L103">    return accountsCollection;</span>
+  }
+
+
+  @Override
+  public void setFunds(String bankAccount, int amount) {
+<span class="nc" id="L109">    var search = new Document(&quot;_id&quot;, bankAccount);</span>
+<span class="nc" id="L110">    var update = new Document(&quot;_id&quot;, bankAccount).append(&quot;funds&quot;, amount);</span>
+<span class="nc" id="L111">    var updateOptions = new UpdateOptions().upsert(true);</span>
+<span class="nc" id="L112">    accountsCollection.updateOne(search, new Document(&quot;$set&quot;, update), updateOptions);</span>
+<span class="nc" id="L113">  }</span>
+
+  @Override
+  public int getFunds(String bankAccount) {
+<span class="nc" id="L117">    return accountsCollection</span>
+<span class="nc" id="L118">        .find(new Document(&quot;_id&quot;, bankAccount))</span>
+<span class="nc" id="L119">        .limit(1)</span>
+<span class="nc" id="L120">        .into(new ArrayList&lt;&gt;())</span>
+<span class="nc" id="L121">        .stream()</span>
+<span class="nc" id="L122">        .findFirst()</span>
+<span class="nc" id="L123">        .map(x -&gt; x.getInteger(&quot;funds&quot;))</span>
+<span class="nc" id="L124">        .orElse(0);</span>
+  }
+
+  @Override
+  public boolean transferFunds(int amount, String sourceAccount, String destinationAccount) {
+<span class="nc" id="L129">    var sourceFunds = getFunds(sourceAccount);</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">    if (sourceFunds &lt; amount) {</span>
+<span class="nc" id="L131">      return false;</span>
+    } else {
+<span class="nc" id="L133">      var destFunds = getFunds(destinationAccount);</span>
+<span class="nc" id="L134">      setFunds(sourceAccount, sourceFunds - amount);</span>
+<span class="nc" id="L135">      setFunds(destinationAccount, destFunds + amount);</span>
+<span class="nc" id="L136">      return true;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

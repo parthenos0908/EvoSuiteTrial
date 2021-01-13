@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductResource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.datatransferenum</a> &gt; <span class="el_source">ProductResource.java</span></div><h1>ProductResource.java</h1><pre class="source lang-java linenums">package com.iluwatar.datatransferenum;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * The resource class which serves product information. This class act as server in the demo. Which
+ * has all product details.
+ */
+public class ProductResource {
+  private final List&lt;Product&gt; products;
+
+  /**
+   * Initialise resource with existing products.
+   *
+   * @param products initialize resource with existing products. Act as database.
+   */
+<span class="fc" id="L18">  public ProductResource(final List&lt;Product&gt; products) {</span>
+<span class="fc" id="L19">    this.products = products;</span>
+<span class="fc" id="L20">  }</span>
+
+  /**
+   * Get all products.
+   *
+   * @return : all products in list but in the scheme of private dto.
+   */
+  public List&lt;ProductDto.Response.Private&gt; getAllProductsForAdmin() {
+<span class="fc" id="L28">    return products</span>
+<span class="fc" id="L29">        .stream()</span>
+<span class="fc" id="L30">        .map(p -&gt; new ProductDto.Response.Private().setId(p.getId()).setName(p.getName())</span>
+<span class="fc" id="L31">            .setCost(p.getCost())</span>
+<span class="fc" id="L32">            .setPrice(p.getPrice()))</span>
+<span class="fc" id="L33">        .collect(Collectors.toList());</span>
+  }
+
+  /**
+   * Get all products.
+   *
+   * @return : all products in list but in the scheme of public dto.
+   */
+  public List&lt;ProductDto.Response.Public&gt; getAllProductsForCustomer() {
+<span class="fc" id="L42">    return products</span>
+<span class="fc" id="L43">        .stream()</span>
+<span class="fc" id="L44">        .map(p -&gt; new ProductDto.Response.Public().setId(p.getId()).setName(p.getName())</span>
+<span class="fc" id="L45">            .setPrice(p.getPrice()))</span>
+<span class="fc" id="L46">        .collect(Collectors.toList());</span>
+  }
+
+  /**
+   * Save new product.
+   *
+   * @param createProductDto save new product to list.
+   */
+  public void save(ProductDto.Request.Create createProductDto) {
+<span class="fc" id="L55">    products.add(new Product()</span>
+<span class="fc" id="L56">        .setId((long) (products.size() + 1))</span>
+<span class="fc" id="L57">        .setName(createProductDto.getName())</span>
+<span class="fc" id="L58">        .setSupplier(createProductDto.getSupplier())</span>
+<span class="fc" id="L59">        .setPrice(createProductDto.getPrice())</span>
+<span class="fc" id="L60">        .setCost(createProductDto.getCost()));</span>
+<span class="fc" id="L61">  }</span>
+
+  /**
+   * List of all products in an entity representation.
+   *
+   * @return : all the products entity that stored in the products list
+   */
+  public List&lt;Product&gt; getProducts() {
+<span class="fc" id="L69">    return products;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

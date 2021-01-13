@@ -1,0 +1,5 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.proxy,App,3,38,0,0,1,7,1,1,1,1
+JaCoCo Coverage Report,com.iluwatar.proxy,WizardTowerProxy,0,30,0,2,0,9,0,4,0,3
+JaCoCo Coverage Report,com.iluwatar.proxy,IvoryTower,0,12,0,0,0,4,0,3,0,3
+JaCoCo Coverage Report,com.iluwatar.proxy,Wizard,0,9,0,0,0,4,0,2,0,2

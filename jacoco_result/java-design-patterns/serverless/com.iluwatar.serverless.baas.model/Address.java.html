@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Address.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.serverless.baas.model</a> &gt; <span class="el_source">Address.java</span></div><h1>Address.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.serverless.baas.model;
+
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDocument;
+import java.io.Serializable;
+import java.util.Objects;
+
+/**
+ * Address class Created by dheeraj.mummarareddy on 3/4/18.
+ */
+@DynamoDBDocument
+<span class="nc" id="L35">public class Address implements Serializable {</span>
+
+  private static final long serialVersionUID = 6760844284799736970L;
+
+  private String addressLineOne;
+  private String addressLineTwo;
+  private String city;
+  private String state;
+  private String zipCode;
+
+  @DynamoDBAttribute(attributeName = &quot;addressLineOne&quot;)
+  public String getAddressLineOne() {
+<span class="nc" id="L47">    return addressLineOne;</span>
+  }
+
+  public void setAddressLineOne(String addressLineOne) {
+<span class="nc" id="L51">    this.addressLineOne = addressLineOne;</span>
+<span class="nc" id="L52">  }</span>
+
+  @DynamoDBAttribute(attributeName = &quot;addressLineTwo&quot;)
+  public String getAddressLineTwo() {
+<span class="nc" id="L56">    return addressLineTwo;</span>
+  }
+
+  public void setAddressLineTwo(String addressLineTwo) {
+<span class="nc" id="L60">    this.addressLineTwo = addressLineTwo;</span>
+<span class="nc" id="L61">  }</span>
+
+  @DynamoDBAttribute(attributeName = &quot;city&quot;)
+  public String getCity() {
+<span class="nc" id="L65">    return city;</span>
+  }
+
+  public void setCity(String city) {
+<span class="nc" id="L69">    this.city = city;</span>
+<span class="nc" id="L70">  }</span>
+
+  @DynamoDBAttribute(attributeName = &quot;state&quot;)
+  public String getState() {
+<span class="nc" id="L74">    return state;</span>
+  }
+
+  public void setState(String state) {
+<span class="nc" id="L78">    this.state = state;</span>
+<span class="nc" id="L79">  }</span>
+
+  @DynamoDBAttribute(attributeName = &quot;zipCode&quot;)
+  public String getZipCode() {
+<span class="nc" id="L83">    return zipCode;</span>
+  }
+
+  public void setZipCode(String zipCode) {
+<span class="nc" id="L87">    this.zipCode = zipCode;</span>
+<span class="nc" id="L88">  }</span>
+
+  @Override
+  public boolean equals(Object o) {
+<span class="nc bnc" id="L92" title="All 2 branches missed.">    if (this == o) {</span>
+<span class="nc" id="L93">      return true;</span>
+    }
+
+<span class="nc bnc" id="L96" title="All 4 branches missed.">    if (o == null || getClass() != o.getClass()) {</span>
+<span class="nc" id="L97">      return false;</span>
+    }
+
+<span class="nc" id="L100">    var address = (Address) o;</span>
+
+<span class="nc bnc" id="L102" title="All 2 branches missed.">    if (!Objects.equals(addressLineOne, address.addressLineOne)) {</span>
+<span class="nc" id="L103">      return false;</span>
+    }
+
+<span class="nc bnc" id="L106" title="All 2 branches missed.">    if (!Objects.equals(addressLineTwo, address.addressLineTwo)) {</span>
+<span class="nc" id="L107">      return false;</span>
+    }
+
+<span class="nc bnc" id="L110" title="All 2 branches missed.">    if (!Objects.equals(city, address.city)) {</span>
+<span class="nc" id="L111">      return false;</span>
+    }
+
+<span class="nc bnc" id="L114" title="All 2 branches missed.">    if (!Objects.equals(state, address.state)) {</span>
+<span class="nc" id="L115">      return false;</span>
+    }
+
+<span class="nc" id="L118">    return Objects.equals(zipCode, address.zipCode);</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc bnc" id="L123" title="All 2 branches missed.">    var result = addressLineOne != null ? addressLineOne.hashCode() : 0;</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">    result = 31 * result + (addressLineTwo != null ? addressLineTwo.hashCode() : 0);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">    result = 31 * result + (city != null ? city.hashCode() : 0);</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">    result = 31 * result + (state != null ? state.hashCode() : 0);</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">    result = 31 * result + (zipCode != null ? zipCode.hashCode() : 0);</span>
+<span class="nc" id="L128">    return result;</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L133">    return &quot;Address{&quot;</span>
+        + &quot;addressLineOne='&quot; + addressLineOne + '\''
+        + &quot;, addressLineTwo='&quot; + addressLineTwo + '\''
+        + &quot;, city='&quot; + city + '\''
+        + &quot;, state='&quot; + state + '\''
+        + &quot;, zipCode='&quot; + zipCode + '\''
+        + '}';
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

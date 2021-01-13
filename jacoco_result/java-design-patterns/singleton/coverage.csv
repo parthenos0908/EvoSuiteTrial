@@ -1,0 +1,8 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.singleton,ThreadSafeLazyLoadedIvoryTower,5,25,2,4,1,10,2,3,0,2
+JaCoCo Coverage Report,com.iluwatar.singleton,InitializingOnDemandHolderIdiom.HelperHolder,0,5,0,0,0,1,0,1,0,1
+JaCoCo Coverage Report,com.iluwatar.singleton,IvoryTower,0,7,0,0,0,2,0,2,0,2
+JaCoCo Coverage Report,com.iluwatar.singleton,App,3,65,0,0,1,22,1,2,1,2
+JaCoCo Coverage Report,com.iluwatar.singleton,EnumIvoryTower,0,16,0,0,0,3,0,2,0,2
+JaCoCo Coverage Report,com.iluwatar.singleton,InitializingOnDemandHolderIdiom,0,2,0,0,0,1,0,1,0,1
+JaCoCo Coverage Report,com.iluwatar.singleton,ThreadSafeDoubleCheckLocking,5,34,2,4,1,13,2,4,0,3

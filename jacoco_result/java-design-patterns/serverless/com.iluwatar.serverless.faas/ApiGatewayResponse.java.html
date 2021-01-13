@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApiGatewayResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.serverless.faas</a> &gt; <span class="el_source">ApiGatewayResponse.java</span></div><h1>ApiGatewayResponse.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.serverless.faas;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.Serializable;
+import java.util.Map;
+
+/**
+ * Api gateway response.
+ */
+public class ApiGatewayResponse implements Serializable {
+
+  private static final long serialVersionUID = 1181159426782844892L;
+
+  private final Integer statusCode;
+  private final String body;
+  private final Map&lt;String, String&gt; headers;
+  private final Boolean isBase64Encoded;
+
+  /**
+   * api gateway response.
+   *
+   * @param statusCode      - http status code
+   * @param body            - response body
+   * @param headers         - response headers
+   * @param isBase64Encoded - base64Encoded flag
+   */
+  public ApiGatewayResponse(
+      Integer statusCode,
+      String body,
+      Map&lt;String, String&gt; headers,
+      Boolean isBase64Encoded
+<span class="fc" id="L56">  ) {</span>
+<span class="fc" id="L57">    this.statusCode = statusCode;</span>
+<span class="fc" id="L58">    this.body = body;</span>
+<span class="fc" id="L59">    this.headers = headers;</span>
+<span class="fc" id="L60">    this.isBase64Encoded = isBase64Encoded;</span>
+<span class="fc" id="L61">  }</span>
+
+  /**
+   * http status code.
+   *
+   * @return statusCode - http status code
+   */
+  public Integer getStatusCode() {
+<span class="nc" id="L69">    return statusCode;</span>
+  }
+
+  /**
+   * response body.
+   *
+   * @return string body
+   */
+  public String getBody() {
+<span class="nc" id="L78">    return body;</span>
+  }
+
+  /**
+   * response headers.
+   *
+   * @return response headers
+   */
+  public Map&lt;String, String&gt; getHeaders() {
+<span class="nc" id="L87">    return headers;</span>
+  }
+
+  /**
+   * base64Encoded flag, API Gateway expects the property to be called &quot;isBase64Encoded&quot;.
+   *
+   * @return base64Encoded flag
+   */
+  public Boolean isBase64Encoded() {
+<span class="nc" id="L96">    return isBase64Encoded;</span>
+  }
+
+  /**
+   * ApiGatewayResponse Builder class.
+   *
+   * @param &lt;T&gt; Serializable object
+   */
+<span class="fc" id="L104">  public static class ApiGatewayResponseBuilder&lt;T extends Serializable&gt; {</span>
+<span class="fc" id="L105">    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();</span>
+    private Integer statusCode;
+    private T body;
+    private Map&lt;String, String&gt; headers;
+    private Boolean isBase64Encoded;
+
+    /**
+     * http status code.
+     *
+     * @param statusCode - http status code
+     * @return ApiGatewayResponseBuilder
+     */
+    public ApiGatewayResponseBuilder statusCode(Integer statusCode) {
+<span class="fc" id="L118">      this.statusCode = statusCode;</span>
+<span class="fc" id="L119">      return this;</span>
+    }
+
+    /**
+     * Serializable body.
+     *
+     * @param body - Serializable object
+     * @return ApiGatewayResponseBuilder
+     */
+    public ApiGatewayResponseBuilder body(T body) {
+<span class="fc" id="L129">      this.body = body;</span>
+<span class="fc" id="L130">      return this;</span>
+    }
+
+    /**
+     * response headers.
+     *
+     * @param headers - response headers
+     * @return ApiGatewayResponseBuilder
+     */
+    public ApiGatewayResponseBuilder headers(Map&lt;String, String&gt; headers) {
+<span class="fc" id="L140">      this.headers = headers;</span>
+<span class="fc" id="L141">      return this;</span>
+    }
+
+    /**
+     * base64Encoded flag.
+     *
+     * @param isBase64Encoded - base64Encoded flag
+     * @return ApiGatewayResponseBuilder
+     */
+    public ApiGatewayResponseBuilder base64Encoded(Boolean isBase64Encoded) {
+<span class="nc" id="L151">      this.isBase64Encoded = isBase64Encoded;</span>
+<span class="nc" id="L152">      return this;</span>
+    }
+
+    /**
+     * build ApiGatewayResponse.
+     *
+     * @return ApiGatewayResponse
+     */
+    public ApiGatewayResponse build() {
+<span class="fc" id="L161">      String strBody = null;</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">      if (this.body != null) {</span>
+        try {
+<span class="fc" id="L164">          strBody = OBJECT_MAPPER.writeValueAsString(body);</span>
+<span class="nc" id="L165">        } catch (JsonProcessingException e) {</span>
+<span class="nc" id="L166">          throw new RuntimeException(e);</span>
+<span class="fc" id="L167">        }</span>
+      }
+
+<span class="fc" id="L170">      return new ApiGatewayResponse(this.statusCode, strBody, this.headers, this.isBase64Encoded);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

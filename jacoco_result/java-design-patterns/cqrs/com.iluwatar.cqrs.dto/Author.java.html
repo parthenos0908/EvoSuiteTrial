@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Author.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.cqrs.dto</a> &gt; <span class="el_source">Author.java</span></div><h1>Author.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.cqrs.dto;
+
+import java.util.Objects;
+
+/**
+ * This is a DTO (Data Transfer Object) author, contains only useful information to be returned.
+ */
+public class Author {
+
+  private String name;
+  private String email;
+  private String username;
+
+  /**
+   * Constructor.
+   *
+   * @param name     name of the author
+   * @param email    email of the author
+   * @param username username of the author
+   */
+<span class="fc" id="L44">  public Author(String name, String email, String username) {</span>
+<span class="fc" id="L45">    this.name = name;</span>
+<span class="fc" id="L46">    this.email = email;</span>
+<span class="fc" id="L47">    this.username = username;</span>
+<span class="fc" id="L48">  }</span>
+
+<span class="fc" id="L50">  public Author() {</span>
+<span class="fc" id="L51">  }</span>
+
+  public String getName() {
+<span class="fc" id="L54">    return name;</span>
+  }
+
+  public String getEmail() {
+<span class="fc" id="L58">    return email;</span>
+  }
+
+  public String getUsername() {
+<span class="fc" id="L62">    return username;</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L67">    return &quot;AuthorDTO [name=&quot; + name + &quot;, email=&quot; + email + &quot;, username=&quot; + username + &quot;]&quot;;</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L72">    return Objects.hash(username, name, email);</span>
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">    if (this == obj) {</span>
+<span class="nc" id="L78">      return true;</span>
+    }
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">    if (!(obj instanceof Author)) {</span>
+<span class="nc" id="L81">      return false;</span>
+    }
+<span class="fc" id="L83">    var other = (Author) obj;</span>
+<span class="pc bpc" id="L84" title="2 of 4 branches missed.">    return username.equals(other.getUsername()) &amp;&amp; email.equals(other.getEmail()) &amp;&amp; name</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        .equals(other.getName());</span>
+
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

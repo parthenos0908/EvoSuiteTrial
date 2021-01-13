@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.databus</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.databus;
+
+import com.iluwatar.databus.data.MessageData;
+import com.iluwatar.databus.data.StartingData;
+import com.iluwatar.databus.data.StoppingData;
+import com.iluwatar.databus.members.MessageCollectorMember;
+import com.iluwatar.databus.members.StatusMember;
+import java.time.LocalDateTime;
+
+/**
+ * The Data Bus pattern.
+ *
+ * @author Paul Campbell (pcampbell@kemitix.net)
+ * @see &lt;a href=&quot;http://wiki.c2.com/?DataBusPattern&quot;&gt;http://wiki.c2.com/?DataBusPattern&lt;/a&gt;
+ *     &lt;p&gt;The Data-Bus pattern provides a method where different parts of an application may
+ *     pass messages between each other without needing to be aware of the other's existence.&lt;/p&gt;
+ *     &lt;p&gt;Similar to the {@code ObserverPattern}, members register themselves with the {@link
+ *     DataBus} and may then receive each piece of data that is published to the Data-Bus. The
+ *     member may react to any given message or not.&lt;/p&gt;
+ *     &lt;p&gt;It allows for Many-to-Many distribution of data, as there may be any number of
+ *     publishers to a Data-Bus, and any number of members receiving the data. All members will
+ *     receive the same data, the order each receives a given piece of data, is an implementation
+ *     detail.&lt;/p&gt;
+ *     &lt;p&gt;Members may unsubscribe from the Data-Bus to stop receiving data.&lt;/p&gt;
+ *     &lt;p&gt;This example of the pattern implements a Synchronous Data-Bus, meaning that
+ *     when data is published to the Data-Bus, the publish method will not return until all members
+ *     have received the data and returned.&lt;/p&gt;
+ *     &lt;p&gt;The {@link DataBus} class is a Singleton.&lt;/p&gt;
+ *     &lt;p&gt;Members of the Data-Bus must implement the {@link Member} interface.&lt;/p&gt;
+ *     &lt;p&gt;Data to be published via the Data-Bus must implement the {@link DataType} interface.&lt;/p&gt;
+ *     &lt;p&gt;The {@code data} package contains example {@link DataType} implementations.&lt;/p&gt;
+ *     &lt;p&gt;The {@code members} package contains example {@link Member} implementations.&lt;/p&gt;
+ *     &lt;p&gt;The {@link StatusMember} demonstrates using the DataBus to publish a message
+ *     to the Data-Bus when it receives a message.&lt;/p&gt;
+ */
+<span class="nc" id="L59">class App {</span>
+
+  public static void main(String[] args) {
+<span class="nc" id="L62">    final var bus = DataBus.getInstance();</span>
+<span class="nc" id="L63">    bus.subscribe(new StatusMember(1));</span>
+<span class="nc" id="L64">    bus.subscribe(new StatusMember(2));</span>
+<span class="nc" id="L65">    final var foo = new MessageCollectorMember(&quot;Foo&quot;);</span>
+<span class="nc" id="L66">    final var bar = new MessageCollectorMember(&quot;Bar&quot;);</span>
+<span class="nc" id="L67">    bus.subscribe(foo);</span>
+<span class="nc" id="L68">    bus.publish(StartingData.of(LocalDateTime.now()));</span>
+<span class="nc" id="L69">    bus.publish(MessageData.of(&quot;Only Foo should see this&quot;));</span>
+<span class="nc" id="L70">    bus.subscribe(bar);</span>
+<span class="nc" id="L71">    bus.publish(MessageData.of(&quot;Foo and Bar should see this&quot;));</span>
+<span class="nc" id="L72">    bus.unsubscribe(foo);</span>
+<span class="nc" id="L73">    bus.publish(MessageData.of(&quot;Only Bar should see this&quot;));</span>
+<span class="nc" id="L74">    bus.publish(StoppingData.of(LocalDateTime.now()));</span>
+<span class="nc" id="L75">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

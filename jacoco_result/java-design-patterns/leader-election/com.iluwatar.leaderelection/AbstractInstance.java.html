@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractInstance.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.leaderelection</a> &gt; <span class="el_source">AbstractInstance.java</span></div><h1>AbstractInstance.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.leaderelection;
+
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Abstract class of all the instance implementation classes.
+ */
+public abstract class AbstractInstance implements Instance, Runnable {
+
+<span class="fc" id="L36">  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractInstance.class);</span>
+
+  protected static final int HEARTBEAT_INTERVAL = 5000;
+  private static final String INSTANCE = &quot;Instance &quot;;
+
+  protected MessageManager messageManager;
+  protected Queue&lt;Message&gt; messageQueue;
+  protected final int localId;
+  protected int leaderId;
+  protected boolean alive;
+
+  /**
+   * Constructor of BullyInstance.
+   */
+<span class="fc" id="L50">  public AbstractInstance(MessageManager messageManager, int localId, int leaderId) {</span>
+<span class="fc" id="L51">    this.messageManager = messageManager;</span>
+<span class="fc" id="L52">    this.messageQueue = new ConcurrentLinkedQueue&lt;&gt;();</span>
+<span class="fc" id="L53">    this.localId = localId;</span>
+<span class="fc" id="L54">    this.leaderId = leaderId;</span>
+<span class="fc" id="L55">    this.alive = true;</span>
+<span class="fc" id="L56">  }</span>
+
+  /**
+   * The instance will execute the message in its message queue periodically once it is alive.
+   */
+  @Override
+  @SuppressWarnings(&quot;squid:S2189&quot;)
+  public void run() {
+    while (true) {
+<span class="fc bfc" id="L65" title="All 2 branches covered.">      if (!this.messageQueue.isEmpty()) {</span>
+<span class="fc" id="L66">        this.processMessage(this.messageQueue.remove());</span>
+      }
+    }
+  }
+
+  /**
+   * Once messages are sent to the certain instance, it will firstly be added to the queue and wait
+   * to be executed.
+   *
+   * @param message Message sent by other instances
+   */
+  @Override
+  public void onMessage(Message message) {
+<span class="fc" id="L79">    messageQueue.offer(message);</span>
+<span class="fc" id="L80">  }</span>
+
+  /**
+   * Check if the instance is alive or not.
+   *
+   * @return {@code true} if the instance is alive.
+   */
+  @Override
+  public boolean isAlive() {
+<span class="fc" id="L89">    return alive;</span>
+  }
+
+  /**
+   * Set the health status of the certain instance.
+   *
+   * @param alive {@code true} for alive.
+   */
+  @Override
+  public void setAlive(boolean alive) {
+<span class="fc" id="L99">    this.alive = alive;</span>
+<span class="fc" id="L100">  }</span>
+
+  /**
+   * Process the message according to its type.
+   *
+   * @param message Message polled from queue.
+   */
+  private void processMessage(Message message) {
+<span class="pc bpc" id="L108" title="3 of 7 branches missed.">    switch (message.getType()) {</span>
+      case ELECTION:
+<span class="fc" id="L110">        LOGGER.info(INSTANCE + localId + &quot; - Election Message handling...&quot;);</span>
+<span class="fc" id="L111">        handleElectionMessage(message);</span>
+<span class="fc" id="L112">        break;</span>
+      case LEADER:
+<span class="fc" id="L114">        LOGGER.info(INSTANCE + localId + &quot; - Leader Message handling...&quot;);</span>
+<span class="fc" id="L115">        handleLeaderMessage(message);</span>
+<span class="fc" id="L116">        break;</span>
+      case HEARTBEAT:
+<span class="nc" id="L118">        LOGGER.info(INSTANCE + localId + &quot; - Heartbeat Message handling...&quot;);</span>
+<span class="nc" id="L119">        handleHeartbeatMessage(message);</span>
+<span class="nc" id="L120">        break;</span>
+      case ELECTION_INVOKE:
+<span class="fc" id="L122">        LOGGER.info(INSTANCE + localId + &quot; - Election Invoke Message handling...&quot;);</span>
+<span class="fc" id="L123">        handleElectionInvokeMessage();</span>
+<span class="fc" id="L124">        break;</span>
+      case LEADER_INVOKE:
+<span class="nc" id="L126">        LOGGER.info(INSTANCE + localId + &quot; - Leader Invoke Message handling...&quot;);</span>
+<span class="nc" id="L127">        handleLeaderInvokeMessage();</span>
+<span class="nc" id="L128">        break;</span>
+      case HEARTBEAT_INVOKE:
+<span class="fc" id="L130">        LOGGER.info(INSTANCE + localId + &quot; - Heartbeat Invoke Message handling...&quot;);</span>
+<span class="fc" id="L131">        handleHeartbeatInvokeMessage();</span>
+<span class="fc" id="L132">        break;</span>
+      default:
+        break;
+    }
+<span class="fc" id="L136">  }</span>
+
+  /**
+   * Abstract methods to handle different types of message. These methods need to be implemented in
+   * concrete instance class to implement corresponding leader-selection pattern.
+   */
+  protected abstract void handleElectionMessage(Message message);
+
+  protected abstract void handleElectionInvokeMessage();
+
+  protected abstract void handleLeaderMessage(Message message);
+
+  protected abstract void handleLeaderInvokeMessage();
+
+  protected abstract void handleHeartbeatMessage(Message message);
+
+  protected abstract void handleHeartbeatInvokeMessage();
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,9 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.builder,Hero,0,128,2,12,0,32,2,13,0,8
+JaCoCo Coverage Report,com.iluwatar.builder,HairType,0,49,0,0,0,6,0,3,0,3
+JaCoCo Coverage Report,com.iluwatar.builder,Armor,0,42,0,0,0,6,0,3,0,3
+JaCoCo Coverage Report,com.iluwatar.builder,Profession,0,31,0,0,0,3,0,2,0,2
+JaCoCo Coverage Report,com.iluwatar.builder,HairColor,0,37,0,0,0,3,0,2,0,2
+JaCoCo Coverage Report,com.iluwatar.builder,Hero.Builder,0,43,0,4,0,15,0,8,0,6
+JaCoCo Coverage Report,com.iluwatar.builder,App,3,54,0,0,1,17,1,2,1,2
+JaCoCo Coverage Report,com.iluwatar.builder,Weapon,0,37,0,0,0,3,0,2,0,2

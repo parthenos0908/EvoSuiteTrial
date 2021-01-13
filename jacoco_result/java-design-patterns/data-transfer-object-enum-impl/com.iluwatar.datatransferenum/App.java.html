@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.datatransferenum</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">package com.iluwatar.datatransferenum;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * The Data Transfer Object pattern is a design pattern in which an data transfer object is used to
+ * serve related information together to avoid multiple call for each piece of information.
+ *
+ * &lt;p&gt;In this example, ({@link App}) as as product details consumer i.e. client to
+ * request for product details to server.
+ *
+ * &lt;p&gt;productResource ({@link ProductResource}) act as server to serve product information. And
+ * The productDto ({@link ProductDto} is data transfer object to share product information.
+ */
+<span class="nc" id="L19">public class App {</span>
+
+<span class="fc" id="L21">  private static final Logger LOGGER = LoggerFactory.getLogger(App.class);</span>
+
+  /**
+   * Method as act client and request to server for details.
+   *
+   * @param args program argument.
+   */
+  public static void main(String[] args) {
+<span class="fc" id="L29">    Product tv =</span>
+<span class="fc" id="L30">        new Product().setId(1L).setName(&quot;TV&quot;).setSupplier(&quot;Sony&quot;).setPrice(1000D).setCost(1090D);</span>
+<span class="fc" id="L31">    Product microwave =</span>
+<span class="fc" id="L32">        new Product().setId(2L).setName(&quot;microwave&quot;).setSupplier(&quot;Delonghi&quot;).setPrice(1000D)</span>
+<span class="fc" id="L33">            .setCost(1090D);</span>
+<span class="fc" id="L34">    Product refrigerator =</span>
+<span class="fc" id="L35">        new Product().setId(3L).setName(&quot;refrigerator&quot;).setSupplier(&quot;Botsch&quot;).setPrice(1000D)</span>
+<span class="fc" id="L36">            .setCost(1090D);</span>
+<span class="fc" id="L37">    Product airConditioner =</span>
+<span class="fc" id="L38">        new Product().setId(4L).setName(&quot;airConditioner&quot;).setSupplier(&quot;LG&quot;).setPrice(1000D)</span>
+<span class="fc" id="L39">            .setCost(1090D);</span>
+<span class="fc" id="L40">    List&lt;Product&gt; products =</span>
+<span class="fc" id="L41">        new ArrayList&lt;&gt;(Arrays.asList(tv, microwave, refrigerator, airConditioner));</span>
+<span class="fc" id="L42">    ProductResource productResource = new ProductResource(products);</span>
+
+<span class="fc" id="L44">    LOGGER.info(&quot;####### List of products including sensitive data just for admins: \n {}&quot;,</span>
+<span class="fc" id="L45">        Arrays.toString(productResource.getAllProductsForAdmin().toArray()));</span>
+<span class="fc" id="L46">    LOGGER.info(&quot;####### List of products for customers: \n {}&quot;,</span>
+<span class="fc" id="L47">        Arrays.toString(productResource.getAllProductsForCustomer().toArray()));</span>
+
+<span class="fc" id="L49">    LOGGER.info(&quot;####### Going to save Sony PS5 ...&quot;);</span>
+<span class="fc" id="L50">    ProductDto.Request.Create createProductRequestDto = new ProductDto.Request.Create()</span>
+<span class="fc" id="L51">        .setName(&quot;PS5&quot;)</span>
+<span class="fc" id="L52">        .setCost(1000D)</span>
+<span class="fc" id="L53">        .setPrice(1220D)</span>
+<span class="fc" id="L54">        .setSupplier(&quot;Sony&quot;);</span>
+<span class="fc" id="L55">    productResource.save(createProductRequestDto);</span>
+<span class="fc" id="L56">    LOGGER.info(&quot;####### List of products after adding PS5: {}&quot;,</span>
+<span class="fc" id="L57">        Arrays.toString(productResource.getProducts().toArray()));</span>
+<span class="fc" id="L58">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,5 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.mutex,Mutex,3,23,2,2,1,9,2,4,0,4
+JaCoCo Coverage Report,com.iluwatar.mutex,Jar,3,34,0,4,2,11,0,4,0,2
+JaCoCo Coverage Report,com.iluwatar.mutex,App,3,27,0,0,1,7,1,1,1,1
+JaCoCo Coverage Report,com.iluwatar.mutex,Thief,0,37,0,2,0,11,0,4,0,3

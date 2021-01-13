@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LruCache.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.caching</a> &gt; <span class="el_source">LruCache.java</span></div><h1>LruCache.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.caching;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Data structure/implementation of the application's cache. The data structure consists of a hash
+ * table attached with a doubly linked-list. The linked-list helps in capturing and maintaining the
+ * LRU data in the cache. When a data is queried (from the cache), added (to the cache), or updated,
+ * the data is moved to the front of the list to depict itself as the most-recently-used data. The
+ * LRU data is always at the end of the list.
+ */
+public class LruCache {
+
+<span class="fc" id="L42">  private static final Logger LOGGER = LoggerFactory.getLogger(LruCache.class);</span>
+
+  class Node {
+    String userId;
+    UserAccount userAccount;
+    Node previous;
+    Node next;
+
+<span class="fc" id="L50">    public Node(String userId, UserAccount userAccount) {</span>
+<span class="fc" id="L51">      this.userId = userId;</span>
+<span class="fc" id="L52">      this.userAccount = userAccount;</span>
+<span class="fc" id="L53">    }</span>
+  }
+
+  int capacity;
+<span class="fc" id="L57">  Map&lt;String, Node&gt; cache = new HashMap&lt;&gt;();</span>
+  Node head;
+  Node end;
+
+<span class="fc" id="L61">  public LruCache(int capacity) {</span>
+<span class="fc" id="L62">    this.capacity = capacity;</span>
+<span class="fc" id="L63">  }</span>
+
+  /**
+   * Get user account.
+   */
+  public UserAccount get(String userId) {
+<span class="fc bfc" id="L69" title="All 2 branches covered.">    if (cache.containsKey(userId)) {</span>
+<span class="fc" id="L70">      var node = cache.get(userId);</span>
+<span class="fc" id="L71">      remove(node);</span>
+<span class="fc" id="L72">      setHead(node);</span>
+<span class="fc" id="L73">      return node.userAccount;</span>
+    }
+<span class="fc" id="L75">    return null;</span>
+  }
+
+  /**
+   * Remove node from linked list.
+   */
+  public void remove(Node node) {
+<span class="fc bfc" id="L82" title="All 2 branches covered.">    if (node.previous != null) {</span>
+<span class="fc" id="L83">      node.previous.next = node.next;</span>
+    } else {
+<span class="fc" id="L85">      head = node.next;</span>
+    }
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">    if (node.next != null) {</span>
+<span class="nc" id="L88">      node.next.previous = node.previous;</span>
+    } else {
+<span class="fc" id="L90">      end = node.previous;</span>
+    }
+<span class="fc" id="L92">  }</span>
+
+  /**
+   * Move node to the front of the list.
+   */
+  public void setHead(Node node) {
+<span class="fc" id="L98">    node.next = head;</span>
+<span class="fc" id="L99">    node.previous = null;</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">    if (head != null) {</span>
+<span class="fc" id="L101">      head.previous = node;</span>
+    }
+<span class="fc" id="L103">    head = node;</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">    if (end == null) {</span>
+<span class="fc" id="L105">      end = head;</span>
+    }
+<span class="fc" id="L107">  }</span>
+
+  /**
+   * Set user account.
+   */
+  public void set(String userId, UserAccount userAccount) {
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">    if (cache.containsKey(userId)) {</span>
+<span class="nc" id="L114">      var old = cache.get(userId);</span>
+<span class="nc" id="L115">      old.userAccount = userAccount;</span>
+<span class="nc" id="L116">      remove(old);</span>
+<span class="nc" id="L117">      setHead(old);</span>
+<span class="nc" id="L118">    } else {</span>
+<span class="fc" id="L119">      var newNode = new Node(userId, userAccount);</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">      if (cache.size() &gt;= capacity) {</span>
+<span class="fc" id="L121">        LOGGER.info(&quot;# Cache is FULL! Removing {} from cache...&quot;, end.userId);</span>
+<span class="fc" id="L122">        cache.remove(end.userId); // remove LRU data from cache.</span>
+<span class="fc" id="L123">        remove(end);</span>
+<span class="fc" id="L124">        setHead(newNode);</span>
+      } else {
+<span class="fc" id="L126">        setHead(newNode);</span>
+      }
+<span class="fc" id="L128">      cache.put(userId, newNode);</span>
+    }
+<span class="fc" id="L130">  }</span>
+
+  public boolean contains(String userId) {
+<span class="fc" id="L133">    return cache.containsKey(userId);</span>
+  }
+
+  /**
+   * Invalidate cache for user.
+   */
+  public void invalidate(String userId) {
+<span class="fc" id="L140">    var toBeRemoved = cache.remove(userId);</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">    if (toBeRemoved != null) {</span>
+<span class="fc" id="L142">      LOGGER.info(&quot;# {} has been updated! Removing older version from cache...&quot;, userId);</span>
+<span class="fc" id="L143">      remove(toBeRemoved);</span>
+    }
+<span class="fc" id="L145">  }</span>
+
+  public boolean isFull() {
+<span class="fc bfc" id="L148" title="All 2 branches covered.">    return cache.size() &gt;= capacity;</span>
+  }
+
+  public UserAccount getLruData() {
+<span class="fc" id="L152">    return end.userAccount;</span>
+  }
+
+  /**
+   * Clear cache.
+   */
+  public void clear() {
+<span class="fc" id="L159">    head = null;</span>
+<span class="fc" id="L160">    end = null;</span>
+<span class="fc" id="L161">    cache.clear();</span>
+<span class="fc" id="L162">  }</span>
+
+  /**
+   * Returns cache data in list form.
+   */
+  public List&lt;UserAccount&gt; getCacheDataInListForm() {
+<span class="fc" id="L168">    var listOfCacheData = new ArrayList&lt;UserAccount&gt;();</span>
+<span class="fc" id="L169">    var temp = head;</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">    while (temp != null) {</span>
+<span class="fc" id="L171">      listOfCacheData.add(temp.userAccount);</span>
+<span class="fc" id="L172">      temp = temp.next;</span>
+    }
+<span class="fc" id="L174">    return listOfCacheData;</span>
+  }
+
+  /**
+   * Set cache capacity.
+   */
+  public void setCapacity(int newCapacity) {
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">    if (capacity &gt; newCapacity) {</span>
+<span class="nc" id="L182">      clear(); // Behavior can be modified to accommodate for decrease in cache size. For now, we'll</span>
+      // just clear the cache.
+    } else {
+<span class="fc" id="L185">      this.capacity = newCapacity;</span>
+    }
+<span class="fc" id="L187">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

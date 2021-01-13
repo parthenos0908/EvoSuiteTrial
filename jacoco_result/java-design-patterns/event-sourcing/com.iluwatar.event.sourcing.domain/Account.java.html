@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Account.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.event.sourcing.domain</a> &gt; <span class="el_source">Account.java</span></div><h1>Account.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.event.sourcing.domain;
+
+import com.iluwatar.event.sourcing.event.AccountCreateEvent;
+import com.iluwatar.event.sourcing.event.MoneyDepositEvent;
+import com.iluwatar.event.sourcing.event.MoneyTransferEvent;
+import com.iluwatar.event.sourcing.state.AccountAggregate;
+import java.math.BigDecimal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * This is the Account class that holds the account info, the account number, account owner name and
+ * money of the account. Account class also have the business logic of events that effects this
+ * account.
+ *
+ * &lt;p&gt;Created by Serdar Hamzaogullari on 06.08.2017.
+ */
+public class Account {
+
+<span class="fc" id="L43">  private static final Logger LOGGER = LoggerFactory.getLogger(Account.class);</span>
+
+  private final int accountNo;
+  private final String owner;
+  private BigDecimal money;
+
+  private static final String MSG =
+      &quot;Some external api for only realtime execution could be called here.&quot;;
+
+  /**
+   * Instantiates a new Account.
+   *
+   * @param accountNo the account no
+   * @param owner     the owner
+   */
+<span class="fc" id="L58">  public Account(int accountNo, String owner) {</span>
+<span class="fc" id="L59">    this.accountNo = accountNo;</span>
+<span class="fc" id="L60">    this.owner = owner;</span>
+<span class="fc" id="L61">    money = BigDecimal.ZERO;</span>
+<span class="fc" id="L62">  }</span>
+
+  /**
+   * Gets account no.
+   *
+   * @return the account no
+   */
+  public int getAccountNo() {
+<span class="fc" id="L70">    return accountNo;</span>
+  }
+
+  /**
+   * Gets owner.
+   *
+   * @return the owner
+   */
+  public String getOwner() {
+<span class="nc" id="L79">    return owner;</span>
+  }
+
+  /**
+   * Gets money.
+   *
+   * @return the money
+   */
+  public BigDecimal getMoney() {
+<span class="fc" id="L88">    return money;</span>
+  }
+
+  /**
+   * Sets money.
+   *
+   * @param money the money
+   */
+  public void setMoney(BigDecimal money) {
+<span class="fc" id="L97">    this.money = money;</span>
+<span class="fc" id="L98">  }</span>
+
+
+  /**
+   * Copy account.
+   *
+   * @return the account
+   */
+  public Account copy() {
+<span class="fc" id="L107">    var account = new Account(accountNo, owner);</span>
+<span class="fc" id="L108">    account.setMoney(money);</span>
+<span class="fc" id="L109">    return account;</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L114">    return &quot;Account{&quot;</span>
+        + &quot;accountNo=&quot; + accountNo
+        + &quot;, owner='&quot; + owner + '\''
+        + &quot;, money=&quot; + money
+        + '}';
+  }
+
+  private void depositMoney(BigDecimal money) {
+<span class="fc" id="L122">    this.money = this.money.add(money);</span>
+<span class="fc" id="L123">  }</span>
+
+  private void withdrawMoney(BigDecimal money) {
+<span class="fc" id="L126">    this.money = this.money.subtract(money);</span>
+<span class="fc" id="L127">  }</span>
+
+  private void handleDeposit(BigDecimal money, boolean realTime) {
+<span class="fc" id="L130">    depositMoney(money);</span>
+<span class="fc" id="L131">    AccountAggregate.putAccount(this);</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">    if (realTime) {</span>
+<span class="fc" id="L133">      LOGGER.info(MSG);</span>
+    }
+<span class="fc" id="L135">  }</span>
+
+  private void handleWithdrawal(BigDecimal money, boolean realTime) {
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">    if (this.money.compareTo(money) &lt; 0) {</span>
+<span class="nc" id="L139">      throw new RuntimeException(&quot;Insufficient Account Balance&quot;);</span>
+    }
+
+<span class="fc" id="L142">    withdrawMoney(money);</span>
+<span class="fc" id="L143">    AccountAggregate.putAccount(this);</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">    if (realTime) {</span>
+<span class="fc" id="L145">      LOGGER.info(MSG);</span>
+    }
+<span class="fc" id="L147">  }</span>
+
+  /**
+   * Handles the MoneyDepositEvent.
+   *
+   * @param moneyDepositEvent the money deposit event
+   */
+  public void handleEvent(MoneyDepositEvent moneyDepositEvent) {
+<span class="fc" id="L155">    handleDeposit(moneyDepositEvent.getMoney(), moneyDepositEvent.isRealTime());</span>
+<span class="fc" id="L156">  }</span>
+
+
+  /**
+   * Handles the AccountCreateEvent.
+   *
+   * @param accountCreateEvent the account create event
+   */
+  public void handleEvent(AccountCreateEvent accountCreateEvent) {
+<span class="fc" id="L165">    AccountAggregate.putAccount(this);</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">    if (accountCreateEvent.isRealTime()) {</span>
+<span class="fc" id="L167">      LOGGER.info(MSG);</span>
+    }
+<span class="fc" id="L169">  }</span>
+
+  /**
+   * Handles transfer from account event.
+   *
+   * @param moneyTransferEvent the money transfer event
+   */
+  public void handleTransferFromEvent(MoneyTransferEvent moneyTransferEvent) {
+<span class="fc" id="L177">    handleWithdrawal(moneyTransferEvent.getMoney(), moneyTransferEvent.isRealTime());</span>
+<span class="fc" id="L178">  }</span>
+
+  /**
+   * Handles transfer to account event.
+   *
+   * @param moneyTransferEvent the money transfer event
+   */
+  public void handleTransferToEvent(MoneyTransferEvent moneyTransferEvent) {
+<span class="fc" id="L186">    handleDeposit(moneyTransferEvent.getMoney(), moneyTransferEvent.isRealTime());</span>
+<span class="fc" id="L187">  }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

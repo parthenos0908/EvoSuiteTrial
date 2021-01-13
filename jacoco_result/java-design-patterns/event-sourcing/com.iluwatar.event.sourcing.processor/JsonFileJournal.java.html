@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JsonFileJournal.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.event.sourcing.processor</a> &gt; <span class="el_source">JsonFileJournal.java</span></div><h1>JsonFileJournal.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.event.sourcing.processor;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.iluwatar.event.sourcing.event.AccountCreateEvent;
+import com.iluwatar.event.sourcing.event.DomainEvent;
+import com.iluwatar.event.sourcing.event.MoneyDepositEvent;
+import com.iluwatar.event.sourcing.event.MoneyTransferEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * This is the implementation of event journal. This implementation serialize/deserialize the events
+ * with JSON and writes/reads them on a Journal.json file at the working directory.
+ *
+ * &lt;p&gt;Created by Serdar Hamzaogullari on 06.08.2017.
+ */
+public class JsonFileJournal {
+
+  private final File file;
+<span class="fc" id="L54">  private final List&lt;String&gt; events = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L55">  private int index = 0;</span>
+
+  /**
+   * Instantiates a new Json file journal.
+   */
+<span class="fc" id="L60">  public JsonFileJournal() {</span>
+<span class="fc" id="L61">    file = new File(&quot;Journal.json&quot;);</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">    if (file.exists()) {</span>
+<span class="fc" id="L63">      try (var input = new BufferedReader(</span>
+          new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+        String line;
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        while ((line = input.readLine()) != null) {</span>
+<span class="fc" id="L67">          events.add(line);</span>
+        }
+<span class="nc" id="L69">      } catch (IOException e) {</span>
+<span class="nc" id="L70">        throw new RuntimeException(e);</span>
+<span class="fc" id="L71">      }</span>
+    } else {
+<span class="fc" id="L73">      reset();</span>
+    }
+<span class="fc" id="L75">  }</span>
+
+
+  /**
+   * Write.
+   *
+   * @param domainEvent the domain event
+   */
+  public void write(DomainEvent domainEvent) {
+<span class="fc" id="L84">    var gson = new Gson();</span>
+    JsonElement jsonElement;
+<span class="fc bfc" id="L86" title="All 2 branches covered.">    if (domainEvent instanceof AccountCreateEvent) {</span>
+<span class="fc" id="L87">      jsonElement = gson.toJsonTree(domainEvent, AccountCreateEvent.class);</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">    } else if (domainEvent instanceof MoneyDepositEvent) {</span>
+<span class="fc" id="L89">      jsonElement = gson.toJsonTree(domainEvent, MoneyDepositEvent.class);</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">    } else if (domainEvent instanceof MoneyTransferEvent) {</span>
+<span class="fc" id="L91">      jsonElement = gson.toJsonTree(domainEvent, MoneyTransferEvent.class);</span>
+    } else {
+<span class="nc" id="L93">      throw new RuntimeException(&quot;Journal Event not recegnized&quot;);</span>
+    }
+
+<span class="fc" id="L96">    try (var output = new BufferedWriter(</span>
+        new OutputStreamWriter(new FileOutputStream(file, true), StandardCharsets.UTF_8))) {
+<span class="fc" id="L98">      var eventString = jsonElement.toString();</span>
+<span class="fc" id="L99">      output.write(eventString + &quot;\r\n&quot;);</span>
+<span class="nc" id="L100">    } catch (IOException e) {</span>
+<span class="nc" id="L101">      throw new RuntimeException(e);</span>
+<span class="fc" id="L102">    }</span>
+<span class="fc" id="L103">  }</span>
+
+
+  /**
+   * Reset.
+   */
+  public void reset() {
+<span class="fc" id="L110">    file.delete();</span>
+<span class="fc" id="L111">  }</span>
+
+
+  /**
+   * Read next domain event.
+   *
+   * @return the domain event
+   */
+  public DomainEvent readNext() {
+<span class="fc bfc" id="L120" title="All 2 branches covered.">    if (index &gt;= events.size()) {</span>
+<span class="fc" id="L121">      return null;</span>
+    }
+<span class="fc" id="L123">    var event = events.get(index);</span>
+<span class="fc" id="L124">    index++;</span>
+
+<span class="fc" id="L126">    var parser = new JsonParser();</span>
+<span class="fc" id="L127">    var jsonElement = parser.parse(event);</span>
+<span class="fc" id="L128">    var eventClassName = jsonElement.getAsJsonObject().get(&quot;eventClassName&quot;).getAsString();</span>
+<span class="fc" id="L129">    var gson = new Gson();</span>
+    DomainEvent domainEvent;
+<span class="fc bfc" id="L131" title="All 2 branches covered.">    if (eventClassName.equals(&quot;AccountCreateEvent&quot;)) {</span>
+<span class="fc" id="L132">      domainEvent = gson.fromJson(jsonElement, AccountCreateEvent.class);</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">    } else if (eventClassName.equals(&quot;MoneyDepositEvent&quot;)) {</span>
+<span class="fc" id="L134">      domainEvent = gson.fromJson(jsonElement, MoneyDepositEvent.class);</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">    } else if (eventClassName.equals(&quot;MoneyTransferEvent&quot;)) {</span>
+<span class="fc" id="L136">      domainEvent = gson.fromJson(jsonElement, MoneyTransferEvent.class);</span>
+    } else {
+<span class="nc" id="L138">      throw new RuntimeException(&quot;Journal Event not recegnized&quot;);</span>
+    }
+
+<span class="fc" id="L141">    domainEvent.setRealTime(false);</span>
+<span class="fc" id="L142">    return domainEvent;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

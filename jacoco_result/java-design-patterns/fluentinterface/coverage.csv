@@ -1,0 +1,15 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.fluentinterface.app,App,3,228,0,6,1,50,1,18,1,15
+JaCoCo Coverage Report,com.iluwatar.fluentinterface.fluentiterable,FluentIterable,0,13,0,0,0,3,0,1,0,1
+JaCoCo Coverage Report,com.iluwatar.fluentinterface.fluentiterable.lazy,LazyFluentIterable.new LazyFluentIterable() {...},0,18,0,0,0,2,0,2,0,2
+JaCoCo Coverage Report,com.iluwatar.fluentinterface.fluentiterable.lazy,LazyFluentIterable,0,81,0,4,0,17,0,13,0,11
+JaCoCo Coverage Report,com.iluwatar.fluentinterface.fluentiterable.lazy,LazyFluentIterable.new DecoratingIterator() {...},0,17,0,2,0,2,0,3,0,2
+JaCoCo Coverage Report,com.iluwatar.fluentinterface.fluentiterable.lazy,LazyFluentIterable.new LazyFluentIterable() {...},0,15,0,0,0,2,0,2,0,2
+JaCoCo Coverage Report,com.iluwatar.fluentinterface.fluentiterable.lazy,LazyFluentIterable.new LazyFluentIterable() {...},0,18,0,0,0,2,0,2,0,2
+JaCoCo Coverage Report,com.iluwatar.fluentinterface.fluentiterable.lazy,LazyFluentIterable.new LazyFluentIterable() {...},0,18,0,0,0,2,0,2,0,2
+JaCoCo Coverage Report,com.iluwatar.fluentinterface.fluentiterable.lazy,DecoratingIterator,4,28,1,3,1,9,1,4,0,3
+JaCoCo Coverage Report,com.iluwatar.fluentinterface.fluentiterable.lazy,LazyFluentIterable.4.new DecoratingIterator() {...},0,30,0,2,0,6,0,3,0,2
+JaCoCo Coverage Report,com.iluwatar.fluentinterface.fluentiterable.lazy,LazyFluentIterable.3.new DecoratingIterator() {...},0,77,2,8,0,14,2,6,0,3
+JaCoCo Coverage Report,com.iluwatar.fluentinterface.fluentiterable.lazy,LazyFluentIterable.2.new DecoratingIterator() {...},0,31,0,4,0,6,0,4,0,2
+JaCoCo Coverage Report,com.iluwatar.fluentinterface.fluentiterable.lazy,LazyFluentIterable.1.new DecoratingIterator() {...},0,26,0,4,0,7,0,4,0,2
+JaCoCo Coverage Report,com.iluwatar.fluentinterface.fluentiterable.simple,SimpleFluentIterable,0,176,0,18,0,52,0,25,0,16

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Service.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.saga.choreography</a> &gt; <span class="el_source">Service.java</span></div><h1>Service.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.saga.choreography;
+
+import java.util.function.Supplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+/**
+ * Common abstraction class representing services. implementing a general contract @see {@link
+ * ChoreographyChapter}
+ */
+public abstract class Service implements ChoreographyChapter {
+<span class="nc" id="L36">  protected static final Logger LOGGER = LoggerFactory.getLogger(Service.class);</span>
+
+  private final ServiceDiscoveryService sd;
+
+<span class="nc" id="L40">  public Service(ServiceDiscoveryService service) {</span>
+<span class="nc" id="L41">    this.sd = service;</span>
+<span class="nc" id="L42">  }</span>
+
+  @Override
+  public Saga execute(Saga saga) {
+<span class="nc" id="L46">    var nextSaga = saga;</span>
+    Object nextVal;
+<span class="nc" id="L48">    var chapterName = saga.getCurrent().getName();</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">    if (chapterName.equals(getName())) {</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">      if (saga.isForward()) {</span>
+<span class="nc" id="L51">        nextSaga = process(saga);</span>
+<span class="nc" id="L52">        nextVal = nextSaga.getCurrentValue();</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (nextSaga.isCurrentSuccess()) {</span>
+<span class="nc" id="L54">          nextSaga.forward();</span>
+        } else {
+<span class="nc" id="L56">          nextSaga.back();</span>
+        }
+      } else {
+<span class="nc" id="L59">        nextSaga = rollback(saga);</span>
+<span class="nc" id="L60">        nextVal = nextSaga.getCurrentValue();</span>
+<span class="nc" id="L61">        nextSaga.back();</span>
+      }
+
+<span class="nc bnc" id="L64" title="All 2 branches missed.">      if (isSagaFinished(nextSaga)) {</span>
+<span class="nc" id="L65">        return nextSaga;</span>
+      }
+
+<span class="nc" id="L68">      nextSaga.setCurrentValue(nextVal);</span>
+    }
+<span class="nc" id="L70">    var finalNextSaga = nextSaga;</span>
+
+<span class="nc" id="L72">    return sd.find(chapterName).map(ch -&gt; ch.execute(finalNextSaga))</span>
+<span class="nc" id="L73">        .orElseThrow(serviceNotFoundException(chapterName));</span>
+  }
+
+  private Supplier&lt;RuntimeException&gt; serviceNotFoundException(String chServiceName) {
+<span class="nc" id="L77">    return () -&gt; new RuntimeException(</span>
+<span class="nc" id="L78">        String.format(&quot;the service %s has not been found&quot;, chServiceName));</span>
+  }
+
+  @Override
+  public Saga process(Saga saga) {
+<span class="nc" id="L83">    var inValue = saga.getCurrentValue();</span>
+<span class="nc" id="L84">    LOGGER.info(&quot;The chapter '{}' has been started. &quot;</span>
+            + &quot;The data {} has been stored or calculated successfully&quot;,
+<span class="nc" id="L86">        getName(), inValue);</span>
+<span class="nc" id="L87">    saga.setCurrentStatus(Saga.ChapterResult.SUCCESS);</span>
+<span class="nc" id="L88">    saga.setCurrentValue(inValue);</span>
+<span class="nc" id="L89">    return saga;</span>
+  }
+
+  @Override
+  public Saga rollback(Saga saga) {
+<span class="nc" id="L94">    var inValue = saga.getCurrentValue();</span>
+<span class="nc" id="L95">    LOGGER.info(&quot;The Rollback for a chapter '{}' has been started. &quot;</span>
+            + &quot;The data {} has been rollbacked successfully&quot;,
+<span class="nc" id="L97">        getName(), inValue);</span>
+
+<span class="nc" id="L99">    saga.setCurrentStatus(Saga.ChapterResult.ROLLBACK);</span>
+<span class="nc" id="L100">    saga.setCurrentValue(inValue);</span>
+<span class="nc" id="L101">    return saga;</span>
+  }
+
+  private boolean isSagaFinished(Saga saga) {
+<span class="nc bnc" id="L105" title="All 2 branches missed.">    if (!saga.isPresent()) {</span>
+<span class="nc" id="L106">      saga.setFinished(true);</span>
+<span class="nc" id="L107">      LOGGER.info(&quot; the saga has been finished with {} status&quot;, saga.getResult());</span>
+<span class="nc" id="L108">      return true;</span>
+    }
+<span class="nc" id="L110">    return false;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

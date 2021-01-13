@@ -1,0 +1,11 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.leaderelection.ring,RingMessageManager,0,61,0,0,0,17,0,5,0,5
+JaCoCo Coverage Report,com.iluwatar.leaderelection.ring,RingInstance,17,137,0,6,7,32,3,8,3,5
+JaCoCo Coverage Report,com.iluwatar.leaderelection.ring,RingApp,3,120,0,0,1,25,1,1,1,1
+JaCoCo Coverage Report,com.iluwatar.leaderelection,MessageType,0,39,0,0,0,7,0,1,0,1
+JaCoCo Coverage Report,com.iluwatar.leaderelection,Message,28,44,4,6,8,11,8,5,4,4
+JaCoCo Coverage Report,com.iluwatar.leaderelection,AbstractInstance,17,89,3,6,6,29,3,11,0,7
+JaCoCo Coverage Report,com.iluwatar.leaderelection,AbstractMessageManager,0,81,1,5,0,21,1,6,0,4
+JaCoCo Coverage Report,com.iluwatar.leaderelection.bully,BullyApp,3,120,0,0,1,25,1,1,1,1
+JaCoCo Coverage Report,com.iluwatar.leaderelection.bully,BullyMessageManager,0,124,0,8,0,25,0,14,0,10
+JaCoCo Coverage Report,com.iluwatar.leaderelection.bully,BullyInstance,30,104,1,9,9,25,4,10,3,6

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.caching</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.caching;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * The Caching pattern describes how to avoid expensive re-acquisition of resources by not releasing
+ * the resources immediately after their use. The resources retain their identity, are kept in some
+ * fast-access storage, and are re-used to avoid having to acquire them again. There are four main
+ * caching strategies/techniques in this pattern; each with their own pros and cons. They are;
+ * &lt;code&gt;write-through&lt;/code&gt; which writes data to the cache and DB in a single transaction,
+ * &lt;code&gt;write-around&lt;/code&gt; which writes data immediately into the DB instead of the cache,
+ * &lt;code&gt;write-behind&lt;/code&gt; which writes data into the cache initially whilst the data is only
+ * written into the DB when the cache is full, and &lt;code&gt;cache-aside&lt;/code&gt; which pushes the
+ * responsibility of keeping the data synchronized in both data sources to the application itself.
+ * The &lt;code&gt;read-through&lt;/code&gt; strategy is also included in the mentioned four strategies --
+ * returns data from the cache to the caller &lt;b&gt;if&lt;/b&gt; it exists &lt;b&gt;else&lt;/b&gt; queries from DB and
+ * stores it into the cache for future use. These strategies determine when the data in the cache
+ * should be written back to the backing store (i.e. Database) and help keep both data sources
+ * synchronized/up-to-date. This pattern can improve performance and also helps to maintain
+ * consistency between data held in the cache and the data in the underlying data store.
+ *
+ * &lt;p&gt;In this example, the user account ({@link UserAccount}) entity is used as the underlying
+ * application data. The cache itself is implemented as an internal (Java) data structure. It adopts
+ * a Least-Recently-Used (LRU) strategy for evicting data from itself when its full. The four
+ * strategies are individually tested. The testing of the cache is restricted towards saving and
+ * querying of user accounts from the underlying data store ( {@link DbManager}). The main class (
+ * {@link App} is not aware of the underlying mechanics of the application (i.e. save and query) and
+ * whether the data is coming from the cache or the DB (i.e. separation of concern). The AppManager
+ * ({@link AppManager}) handles the transaction of data to-and-from the underlying data store
+ * (depending on the preferred caching policy/strategy).
+ * &lt;p&gt;
+ * &lt;i&gt;{@literal App --&gt; AppManager --&gt; CacheStore/LRUCache/CachingPolicy --&gt; DBManager} &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * @see CacheStore
+ * @see LruCache
+ * @see CachingPolicy
+ */
+<span class="fc" id="L63">public class App {</span>
+
+<span class="fc" id="L65">  private static final Logger LOGGER = LoggerFactory.getLogger(App.class);</span>
+
+
+  /**
+   * Program entry point.
+   *
+   * @param args command line args
+   */
+  public static void main(String[] args) {
+<span class="fc" id="L74">    AppManager.initDb(false); // VirtualDB (instead of MongoDB) was used in running the JUnit tests</span>
+    // and the App class to avoid Maven compilation errors. Set flag to
+    // true to run the tests with MongoDB (provided that MongoDB is
+    // installed and socket connection is open).
+<span class="fc" id="L78">    AppManager.initCacheCapacity(3);</span>
+<span class="fc" id="L79">    var app = new App();</span>
+<span class="fc" id="L80">    app.useReadAndWriteThroughStrategy();</span>
+<span class="fc" id="L81">    app.useReadThroughAndWriteAroundStrategy();</span>
+<span class="fc" id="L82">    app.useReadThroughAndWriteBehindStrategy();</span>
+<span class="fc" id="L83">    app.useCacheAsideStategy();</span>
+<span class="fc" id="L84">  }</span>
+
+  /**
+   * Read-through and write-through.
+   */
+  public void useReadAndWriteThroughStrategy() {
+<span class="fc" id="L90">    LOGGER.info(&quot;# CachingPolicy.THROUGH&quot;);</span>
+<span class="fc" id="L91">    AppManager.initCachingPolicy(CachingPolicy.THROUGH);</span>
+
+<span class="fc" id="L93">    var userAccount1 = new UserAccount(&quot;001&quot;, &quot;John&quot;, &quot;He is a boy.&quot;);</span>
+
+<span class="fc" id="L95">    AppManager.save(userAccount1);</span>
+<span class="fc" id="L96">    LOGGER.info(AppManager.printCacheContent());</span>
+<span class="fc" id="L97">    AppManager.find(&quot;001&quot;);</span>
+<span class="fc" id="L98">    AppManager.find(&quot;001&quot;);</span>
+<span class="fc" id="L99">  }</span>
+
+  /**
+   * Read-through and write-around.
+   */
+  public void useReadThroughAndWriteAroundStrategy() {
+<span class="fc" id="L105">    LOGGER.info(&quot;# CachingPolicy.AROUND&quot;);</span>
+<span class="fc" id="L106">    AppManager.initCachingPolicy(CachingPolicy.AROUND);</span>
+
+<span class="fc" id="L108">    var userAccount2 = new UserAccount(&quot;002&quot;, &quot;Jane&quot;, &quot;She is a girl.&quot;);</span>
+
+<span class="fc" id="L110">    AppManager.save(userAccount2);</span>
+<span class="fc" id="L111">    LOGGER.info(AppManager.printCacheContent());</span>
+<span class="fc" id="L112">    AppManager.find(&quot;002&quot;);</span>
+<span class="fc" id="L113">    LOGGER.info(AppManager.printCacheContent());</span>
+<span class="fc" id="L114">    userAccount2 = AppManager.find(&quot;002&quot;);</span>
+<span class="fc" id="L115">    userAccount2.setUserName(&quot;Jane G.&quot;);</span>
+<span class="fc" id="L116">    AppManager.save(userAccount2);</span>
+<span class="fc" id="L117">    LOGGER.info(AppManager.printCacheContent());</span>
+<span class="fc" id="L118">    AppManager.find(&quot;002&quot;);</span>
+<span class="fc" id="L119">    LOGGER.info(AppManager.printCacheContent());</span>
+<span class="fc" id="L120">    AppManager.find(&quot;002&quot;);</span>
+<span class="fc" id="L121">  }</span>
+
+  /**
+   * Read-through and write-behind.
+   */
+  public void useReadThroughAndWriteBehindStrategy() {
+<span class="fc" id="L127">    LOGGER.info(&quot;# CachingPolicy.BEHIND&quot;);</span>
+<span class="fc" id="L128">    AppManager.initCachingPolicy(CachingPolicy.BEHIND);</span>
+
+<span class="fc" id="L130">    var userAccount3 = new UserAccount(&quot;003&quot;, &quot;Adam&quot;, &quot;He likes food.&quot;);</span>
+<span class="fc" id="L131">    var userAccount4 = new UserAccount(&quot;004&quot;, &quot;Rita&quot;, &quot;She hates cats.&quot;);</span>
+<span class="fc" id="L132">    var userAccount5 = new UserAccount(&quot;005&quot;, &quot;Isaac&quot;, &quot;He is allergic to mustard.&quot;);</span>
+
+<span class="fc" id="L134">    AppManager.save(userAccount3);</span>
+<span class="fc" id="L135">    AppManager.save(userAccount4);</span>
+<span class="fc" id="L136">    AppManager.save(userAccount5);</span>
+<span class="fc" id="L137">    LOGGER.info(AppManager.printCacheContent());</span>
+<span class="fc" id="L138">    AppManager.find(&quot;003&quot;);</span>
+<span class="fc" id="L139">    LOGGER.info(AppManager.printCacheContent());</span>
+<span class="fc" id="L140">    UserAccount userAccount6 = new UserAccount(&quot;006&quot;, &quot;Yasha&quot;, &quot;She is an only child.&quot;);</span>
+<span class="fc" id="L141">    AppManager.save(userAccount6);</span>
+<span class="fc" id="L142">    LOGGER.info(AppManager.printCacheContent());</span>
+<span class="fc" id="L143">    AppManager.find(&quot;004&quot;);</span>
+<span class="fc" id="L144">    LOGGER.info(AppManager.printCacheContent());</span>
+<span class="fc" id="L145">  }</span>
+
+  /**
+   * Cache-Aside.
+   */
+  public void useCacheAsideStategy() {
+<span class="fc" id="L151">    LOGGER.info(&quot;# CachingPolicy.ASIDE&quot;);</span>
+<span class="fc" id="L152">    AppManager.initCachingPolicy(CachingPolicy.ASIDE);</span>
+<span class="fc" id="L153">    LOGGER.info(AppManager.printCacheContent());</span>
+
+<span class="fc" id="L155">    var userAccount3 = new UserAccount(&quot;003&quot;, &quot;Adam&quot;, &quot;He likes food.&quot;);</span>
+<span class="fc" id="L156">    var userAccount4 = new UserAccount(&quot;004&quot;, &quot;Rita&quot;, &quot;She hates cats.&quot;);</span>
+<span class="fc" id="L157">    var userAccount5 = new UserAccount(&quot;005&quot;, &quot;Isaac&quot;, &quot;He is allergic to mustard.&quot;);</span>
+<span class="fc" id="L158">    AppManager.save(userAccount3);</span>
+<span class="fc" id="L159">    AppManager.save(userAccount4);</span>
+<span class="fc" id="L160">    AppManager.save(userAccount5);</span>
+
+<span class="fc" id="L162">    LOGGER.info(AppManager.printCacheContent());</span>
+<span class="fc" id="L163">    AppManager.find(&quot;003&quot;);</span>
+<span class="fc" id="L164">    LOGGER.info(AppManager.printCacheContent());</span>
+<span class="fc" id="L165">    AppManager.find(&quot;004&quot;);</span>
+<span class="fc" id="L166">    LOGGER.info(AppManager.printCacheContent());</span>
+<span class="fc" id="L167">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

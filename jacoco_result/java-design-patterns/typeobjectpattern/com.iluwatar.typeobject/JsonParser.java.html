@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JsonParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.typeobject</a> &gt; <span class="el_source">JsonParser.java</span></div><h1>JsonParser.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.typeobject;
+
+import com.iluwatar.typeobject.Candy.Type;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.List;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+/**
+ * The JsonParser class helps parse the json file candy.json to get all the different candies.
+ */
+
+public class JsonParser {
+  Hashtable&lt;String, Candy&gt; candies;
+
+<span class="fc" id="L45">  JsonParser() {</span>
+<span class="fc" id="L46">    this.candies = new Hashtable&lt;&gt;();</span>
+<span class="fc" id="L47">  }</span>
+
+  void parse() throws IOException, ParseException {
+<span class="fc" id="L50">    var parser = new JSONParser();</span>
+<span class="fc" id="L51">    var workingDirectory = new File(&quot;&quot;).getAbsolutePath();</span>
+<span class="fc" id="L52">    var filePath = List.of(&quot;src&quot;, &quot;main&quot;, &quot;java&quot;, &quot;com&quot;, &quot;iluwatar&quot;, &quot;typeobject&quot;, &quot;candy.json&quot;);</span>
+<span class="fc" id="L53">    var absolutePath = workingDirectory + File.separator + String.join(File.separator, filePath);</span>
+<span class="fc" id="L54">    var jo = (JSONObject) parser.parse(new FileReader(absolutePath));</span>
+<span class="fc" id="L55">    var a = (JSONArray) jo.get(&quot;candies&quot;);</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">    for (var o : a) {</span>
+<span class="fc" id="L57">      var candy = (JSONObject) o;</span>
+<span class="fc" id="L58">      var name = (String) candy.get(&quot;name&quot;);</span>
+<span class="fc" id="L59">      var parentName = (String) candy.get(&quot;parent&quot;);</span>
+<span class="fc" id="L60">      var t = (String) candy.get(&quot;type&quot;);</span>
+<span class="fc" id="L61">      var type = Type.CRUSHABLE_CANDY;</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">      if (t.equals(&quot;rewardFruit&quot;)) {</span>
+<span class="fc" id="L63">        type = Type.REWARD_FRUIT;</span>
+      }
+<span class="fc" id="L65">      var points = Integer.parseInt((String) candy.get(&quot;points&quot;));</span>
+<span class="fc" id="L66">      var c = new Candy(name, parentName, type, points);</span>
+<span class="fc" id="L67">      this.candies.put(name, c);</span>
+<span class="fc" id="L68">    }</span>
+<span class="fc" id="L69">    setParentAndPoints();</span>
+<span class="fc" id="L70">  }</span>
+
+  void setParentAndPoints() {
+<span class="fc bfc" id="L73" title="All 2 branches covered.">    for (var e = this.candies.keys(); e.hasMoreElements(); ) {</span>
+<span class="fc" id="L74">      var c = this.candies.get(e.nextElement());</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">      if (c.parentName == null) {</span>
+<span class="nc" id="L76">        c.parent = null;</span>
+      } else {
+<span class="fc" id="L78">        c.parent = this.candies.get(c.parentName);</span>
+      }
+<span class="pc bpc" id="L80" title="1 of 4 branches missed.">      if (c.getPoints() == 0 &amp;&amp; c.parent != null) {</span>
+<span class="fc" id="L81">        c.setPoints(c.parent.getPoints());</span>
+      }
+<span class="fc" id="L83">    }</span>
+<span class="fc" id="L84">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

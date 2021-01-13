@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Character.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.stepbuilder</a> &gt; <span class="el_source">Character.java</span></div><h1>Character.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.stepbuilder;
+
+import java.util.List;
+
+/**
+ * The class with many parameters.
+ */
+public class Character {
+
+  private String name;
+  private String fighterClass;
+  private String wizardClass;
+  private String weapon;
+  private String spell;
+  private List&lt;String&gt; abilities;
+
+<span class="fc" id="L40">  public Character(String name) {</span>
+<span class="fc" id="L41">    this.name = name;</span>
+<span class="fc" id="L42">  }</span>
+
+  public String getName() {
+<span class="fc" id="L45">    return name;</span>
+  }
+
+  public void setName(String name) {
+<span class="nc" id="L49">    this.name = name;</span>
+<span class="nc" id="L50">  }</span>
+
+  public String getFighterClass() {
+<span class="fc" id="L53">    return fighterClass;</span>
+  }
+
+  public void setFighterClass(String fighterClass) {
+<span class="fc" id="L57">    this.fighterClass = fighterClass;</span>
+<span class="fc" id="L58">  }</span>
+
+  public String getWizardClass() {
+<span class="fc" id="L61">    return wizardClass;</span>
+  }
+
+  public void setWizardClass(String wizardClass) {
+<span class="fc" id="L65">    this.wizardClass = wizardClass;</span>
+<span class="fc" id="L66">  }</span>
+
+  public String getWeapon() {
+<span class="fc" id="L69">    return weapon;</span>
+  }
+
+  public void setWeapon(String weapon) {
+<span class="fc" id="L73">    this.weapon = weapon;</span>
+<span class="fc" id="L74">  }</span>
+
+  public String getSpell() {
+<span class="fc" id="L77">    return spell;</span>
+  }
+
+  public void setSpell(String spell) {
+<span class="fc" id="L81">    this.spell = spell;</span>
+<span class="fc" id="L82">  }</span>
+
+  public List&lt;String&gt; getAbilities() {
+<span class="fc" id="L85">    return abilities;</span>
+  }
+
+  public void setAbilities(List&lt;String&gt; abilities) {
+<span class="fc" id="L89">    this.abilities = abilities;</span>
+<span class="fc" id="L90">  }</span>
+
+  @Override
+  public String toString() {
+<span class="fc" id="L94">    return new StringBuilder()</span>
+<span class="fc" id="L95">        .append(&quot;This is a &quot;)</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        .append(fighterClass != null ? fighterClass : wizardClass)</span>
+<span class="fc" id="L97">        .append(&quot; named &quot;)</span>
+<span class="fc" id="L98">        .append(name)</span>
+<span class="fc" id="L99">        .append(&quot; armed with a &quot;)</span>
+<span class="fc bfc" id="L100" title="All 4 branches covered.">        .append(weapon != null ? weapon : spell != null ? spell : &quot;with nothing&quot;)</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        .append(abilities != null ? &quot; and wielding &quot; + abilities + &quot; abilities&quot; : &quot;&quot;)</span>
+<span class="fc" id="L102">        .append('.')</span>
+<span class="fc" id="L103">        .toString();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

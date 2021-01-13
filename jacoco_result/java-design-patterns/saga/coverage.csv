@@ -1,0 +1,26 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.saga.choreography,WithdrawMoneyService,28,0,2,0,10,0,4,0,3,0
+JaCoCo Coverage Report,com.iluwatar.saga.choreography,SagaApplication,68,0,0,0,21,0,5,0,5,0
+JaCoCo Coverage Report,com.iluwatar.saga.choreography,Saga.ChapterResult,21,0,0,0,2,0,1,0,1,0
+JaCoCo Coverage Report,com.iluwatar.saga.choreography,Saga.SagaResult,21,0,0,0,2,0,1,0,1,0
+JaCoCo Coverage Report,com.iluwatar.saga.choreography,FlyBookingService,6,0,0,0,3,0,2,0,2,0
+JaCoCo Coverage Report,com.iluwatar.saga.choreography,ServiceDiscoveryService,32,0,0,0,7,0,4,0,4,0
+JaCoCo Coverage Report,com.iluwatar.saga.choreography,OrderService,6,0,0,0,3,0,2,0,2,0
+JaCoCo Coverage Report,com.iluwatar.saga.choreography,Service,144,0,10,0,41,0,14,0,9,0
+JaCoCo Coverage Report,com.iluwatar.saga.choreography,Saga,152,0,10,0,34,0,21,0,16,0
+JaCoCo Coverage Report,com.iluwatar.saga.choreography,Saga.Chapter,31,0,2,0,11,0,7,0,6,0
+JaCoCo Coverage Report,com.iluwatar.saga.choreography,HotelBookingService,6,0,0,0,3,0,2,0,2,0
+JaCoCo Coverage Report,com.iluwatar.saga.orchestration,ChapterResult,32,0,2,0,8,0,6,0,5,0
+JaCoCo Coverage Report,com.iluwatar.saga.orchestration,Saga.Chapter,9,0,0,0,4,0,2,0,2,0
+JaCoCo Coverage Report,com.iluwatar.saga.orchestration,Service,25,0,0,0,8,0,4,0,4,0
+JaCoCo Coverage Report,com.iluwatar.saga.orchestration,OrderService,5,0,0,0,2,0,2,0,2,0
+JaCoCo Coverage Report,com.iluwatar.saga.orchestration,ServiceDiscoveryService,25,0,0,0,6,0,3,0,3,0
+JaCoCo Coverage Report,com.iluwatar.saga.orchestration,SagaApplication,73,0,0,0,19,0,5,0,5,0
+JaCoCo Coverage Report,com.iluwatar.saga.orchestration,WithdrawMoneyService,26,0,4,0,7,0,5,0,3,0
+JaCoCo Coverage Report,com.iluwatar.saga.orchestration,Saga,39,0,4,0,8,0,7,0,5,0
+JaCoCo Coverage Report,com.iluwatar.saga.orchestration,FlyBookingService,5,0,0,0,2,0,2,0,2,0
+JaCoCo Coverage Report,com.iluwatar.saga.orchestration,SagaOrchestrator.CurrentState,42,0,0,0,13,0,7,0,7,0
+JaCoCo Coverage Report,com.iluwatar.saga.orchestration,HotelBookingService,28,0,2,0,9,0,4,0,3,0
+JaCoCo Coverage Report,com.iluwatar.saga.orchestration,Saga.Result,21,0,0,0,2,0,1,0,1,0
+JaCoCo Coverage Report,com.iluwatar.saga.orchestration,ChapterResult.State,15,0,0,0,2,0,1,0,1,0
+JaCoCo Coverage Report,com.iluwatar.saga.orchestration,SagaOrchestrator,121,0,14,0,34,0,10,0,3,0

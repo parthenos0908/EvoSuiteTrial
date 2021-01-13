@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LotteryTicketCheckResult.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.hexagonal.domain</a> &gt; <span class="el_source">LotteryTicketCheckResult.java</span></div><h1>LotteryTicketCheckResult.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.hexagonal.domain;
+
+/**
+ * Represents lottery ticket check result.
+ */
+public class LotteryTicketCheckResult {
+
+  /**
+   * Enumeration of Type of Outcomes of a Lottery.
+   */
+<span class="fc" id="L34">  public enum CheckResult {</span>
+<span class="fc" id="L35">    WIN_PRIZE,</span>
+<span class="fc" id="L36">    NO_PRIZE,</span>
+<span class="fc" id="L37">    TICKET_NOT_SUBMITTED</span>
+  }
+
+  private final CheckResult checkResult;
+  private final int prizeAmount;
+
+  /**
+   * Constructor.
+   */
+<span class="fc" id="L46">  public LotteryTicketCheckResult(CheckResult result) {</span>
+<span class="fc" id="L47">    checkResult = result;</span>
+<span class="fc" id="L48">    prizeAmount = 0;</span>
+<span class="fc" id="L49">  }</span>
+
+  /**
+   * Constructor.
+   */
+<span class="fc" id="L54">  public LotteryTicketCheckResult(CheckResult result, int amount) {</span>
+<span class="fc" id="L55">    checkResult = result;</span>
+<span class="fc" id="L56">    prizeAmount = amount;</span>
+<span class="fc" id="L57">  }</span>
+
+  /**
+   * Get result.
+   *
+   * @return check result
+   */
+  public CheckResult getResult() {
+<span class="fc" id="L65">    return checkResult;</span>
+  }
+
+  /**
+   * Get prize amount.
+   *
+   * @return prize amount
+   */
+  public int getPrizeAmount() {
+<span class="fc" id="L74">    return prizeAmount;</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L79">    final var prime = 31;</span>
+<span class="nc" id="L80">    var result = 1;</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">    result = prime * result + ((checkResult == null) ? 0 : checkResult.hashCode());</span>
+<span class="nc" id="L82">    result = prime * result + prizeAmount;</span>
+<span class="nc" id="L83">    return result;</span>
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">    if (this == obj) {</span>
+<span class="nc" id="L89">      return true;</span>
+    }
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">    if (obj == null) {</span>
+<span class="nc" id="L92">      return false;</span>
+    }
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">    if (getClass() != obj.getClass()) {</span>
+<span class="nc" id="L95">      return false;</span>
+    }
+<span class="fc" id="L97">    var other = (LotteryTicketCheckResult) obj;</span>
+<span class="pc bpc" id="L98" title="1 of 4 branches missed.">    return checkResult == other.checkResult &amp;&amp; prizeAmount == other.prizeAmount;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

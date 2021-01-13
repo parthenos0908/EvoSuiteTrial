@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.iterator</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.iterator;
+
+import static com.iluwatar.iterator.list.ItemType.ANY;
+import static com.iluwatar.iterator.list.ItemType.POTION;
+import static com.iluwatar.iterator.list.ItemType.RING;
+import static com.iluwatar.iterator.list.ItemType.WEAPON;
+
+import com.iluwatar.iterator.bst.BstIterator;
+import com.iluwatar.iterator.bst.TreeNode;
+import com.iluwatar.iterator.list.ItemType;
+import com.iluwatar.iterator.list.TreasureChest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * The Iterator pattern is a design pattern in which an iterator is used to traverse a container and
+ * access the container's elements. The Iterator pattern decouples algorithms from containers.
+ *
+ * &lt;p&gt;In this example the Iterator ({@link Iterator}) adds abstraction layer on top of a collection
+ * ({@link TreasureChest}). This way the collection can change its internal implementation without
+ * affecting its clients.
+ */
+<span class="nc" id="L46">public class App {</span>
+
+<span class="fc" id="L48">  private static final Logger LOGGER = LoggerFactory.getLogger(App.class);</span>
+
+<span class="fc" id="L50">  private static final TreasureChest TREASURE_CHEST = new TreasureChest();</span>
+
+  private static void demonstrateTreasureChestIteratorForType(ItemType itemType) {
+<span class="fc" id="L53">    LOGGER.info(&quot;------------------------&quot;);</span>
+<span class="fc" id="L54">    LOGGER.info(&quot;Item Iterator for ItemType &quot; + itemType + &quot;: &quot;);</span>
+<span class="fc" id="L55">    var itemIterator = TREASURE_CHEST.iterator(itemType);</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">    while (itemIterator.hasNext()) {</span>
+<span class="fc" id="L57">      LOGGER.info(itemIterator.next().toString());</span>
+    }
+<span class="fc" id="L59">  }</span>
+
+  private static void demonstrateBstIterator() {
+<span class="fc" id="L62">    LOGGER.info(&quot;------------------------&quot;);</span>
+<span class="fc" id="L63">    LOGGER.info(&quot;BST Iterator: &quot;);</span>
+<span class="fc" id="L64">    var root = buildIntegerBst();</span>
+<span class="fc" id="L65">    var bstIterator = new BstIterator&lt;&gt;(root);</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">    while (bstIterator.hasNext()) {</span>
+<span class="fc" id="L67">      LOGGER.info(&quot;Next node: &quot; + bstIterator.next().getVal());</span>
+    }
+<span class="fc" id="L69">  }</span>
+
+  private static TreeNode&lt;Integer&gt; buildIntegerBst() {
+<span class="fc" id="L72">    var root = new TreeNode&lt;&gt;(8);</span>
+
+<span class="fc" id="L74">    root.insert(3);</span>
+<span class="fc" id="L75">    root.insert(10);</span>
+<span class="fc" id="L76">    root.insert(1);</span>
+<span class="fc" id="L77">    root.insert(6);</span>
+<span class="fc" id="L78">    root.insert(14);</span>
+<span class="fc" id="L79">    root.insert(4);</span>
+<span class="fc" id="L80">    root.insert(7);</span>
+<span class="fc" id="L81">    root.insert(13);</span>
+
+<span class="fc" id="L83">    return root;</span>
+  }
+
+  /**
+   * Program entry point.
+   *
+   * @param args command line args
+   */
+  public static void main(String[] args) {
+<span class="fc" id="L92">    demonstrateTreasureChestIteratorForType(RING);</span>
+<span class="fc" id="L93">    demonstrateTreasureChestIteratorForType(POTION);</span>
+<span class="fc" id="L94">    demonstrateTreasureChestIteratorForType(WEAPON);</span>
+<span class="fc" id="L95">    demonstrateTreasureChestIteratorForType(ANY);</span>
+
+<span class="fc" id="L97">    demonstrateBstIterator();</span>
+<span class="fc" id="L98">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

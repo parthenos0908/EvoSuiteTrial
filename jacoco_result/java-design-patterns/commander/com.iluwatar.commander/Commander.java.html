@@ -1,0 +1,599 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Commander.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.commander</a> &gt; <span class="el_source">Commander.java</span></div><h1>Commander.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.commander;
+
+import com.iluwatar.commander.Order.MessageSent;
+import com.iluwatar.commander.Order.PaymentStatus;
+import com.iluwatar.commander.employeehandle.EmployeeHandle;
+import com.iluwatar.commander.exceptions.DatabaseUnavailableException;
+import com.iluwatar.commander.exceptions.ItemUnavailableException;
+import com.iluwatar.commander.exceptions.PaymentDetailsErrorException;
+import com.iluwatar.commander.exceptions.ShippingNotPossibleException;
+import com.iluwatar.commander.messagingservice.MessagingService;
+import com.iluwatar.commander.paymentservice.PaymentService;
+import com.iluwatar.commander.queue.QueueDatabase;
+import com.iluwatar.commander.queue.QueueTask;
+import com.iluwatar.commander.queue.QueueTask.TaskType;
+import com.iluwatar.commander.shippingservice.ShippingService;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+/**
+ * &lt;p&gt;Commander pattern is used to handle all issues that can come up while making a
+ * distributed transaction. The idea is to have a commander, which coordinates the execution of all
+ * instructions and ensures proper completion using retries and taking care of idempotence. By
+ * queueing instructions while they haven't been done, we can ensure a state of 'eventual
+ * consistency'.&lt;/p&gt;
+ * &lt;p&gt;In our example, we have an e-commerce application. When the user places an order,
+ * the shipping service is intimated first. If the service does not respond for some reason, the
+ * order is not placed. If response is received, the commander then calls for the payment service to
+ * be intimated. If this fails, the shipping still takes place (order converted to COD) and the item
+ * is queued. If the queue is also found to be unavailable, the payment is noted to be not done and
+ * this is added to an employee database. Three types of messages are sent to the user - one, if
+ * payment succeeds; two, if payment fails definitively; and three, if payment fails in the first
+ * attempt. If the message is not sent, this is also queued and is added to employee db. We also
+ * have a time limit for each instruction to be completed, after which, the instruction is not
+ * executed, thereby ensuring that resources are not held for too long. In the rare occasion in
+ * which everything fails, an individual would have to step in to figure out how to solve the
+ * issue.&lt;/p&gt;
+ * &lt;p&gt;We have abstract classes {@link Database} and {@link Service} which are extended
+ * by all the databases and services. Each service has a database to be updated, and receives
+ * request from an outside user (the {@link Commander} class here). There are 5 microservices -
+ * {@link ShippingService}, {@link PaymentService}, {@link MessagingService}, {@link EmployeeHandle}
+ * and a {@link QueueDatabase}. We use retries to execute any instruction using {@link Retry} class,
+ * and idempotence is ensured by going through some checks before making requests to services and
+ * making change in {@link Order} class fields if request succeeds or definitively fails. There are
+ * 5 classes - {@link AppShippingFailCases}, {@link AppPaymentFailCases}, {@link
+ * AppMessagingFailCases}, {@link AppQueueFailCases} and {@link AppEmployeeDbFailCases}, which look
+ * at the different scenarios that may be encountered during the placing of an order.&lt;/p&gt;
+ */
+
+public class Commander {
+
+  private final QueueDatabase queue;
+  private final EmployeeHandle employeeDb;
+  private final PaymentService paymentService;
+  private final ShippingService shippingService;
+  private final MessagingService messagingService;
+<span class="nc" id="L81">  private int queueItems = 0; //keeping track here only so don't need access to queue db to get this</span>
+  private final int numOfRetries;
+  private final long retryDuration;
+  private final long queueTime;
+  private final long queueTaskTime;
+  private final long paymentTime;
+  private final long messageTime;
+  private final long employeeTime;
+  private boolean finalSiteMsgShown;
+<span class="nc" id="L90">  private static final Logger LOG = LoggerFactory.getLogger(Commander.class);</span>
+  //we could also have another db where it stores all orders
+
+  Commander(EmployeeHandle empDb, PaymentService paymentService, ShippingService shippingService,
+            MessagingService messagingService, QueueDatabase qdb, int numOfRetries,
+            long retryDuration, long queueTime, long queueTaskTime, long paymentTime,
+<span class="nc" id="L96">            long messageTime, long employeeTime) {</span>
+<span class="nc" id="L97">    this.paymentService = paymentService;</span>
+<span class="nc" id="L98">    this.shippingService = shippingService;</span>
+<span class="nc" id="L99">    this.messagingService = messagingService;</span>
+<span class="nc" id="L100">    this.employeeDb = empDb;</span>
+<span class="nc" id="L101">    this.queue = qdb;</span>
+<span class="nc" id="L102">    this.numOfRetries = numOfRetries;</span>
+<span class="nc" id="L103">    this.retryDuration = retryDuration;</span>
+<span class="nc" id="L104">    this.queueTime = queueTime;</span>
+<span class="nc" id="L105">    this.queueTaskTime = queueTaskTime;</span>
+<span class="nc" id="L106">    this.paymentTime = paymentTime;</span>
+<span class="nc" id="L107">    this.messageTime = messageTime;</span>
+<span class="nc" id="L108">    this.employeeTime = employeeTime;</span>
+<span class="nc" id="L109">    this.finalSiteMsgShown = false;</span>
+<span class="nc" id="L110">  }</span>
+
+  void placeOrder(Order order) throws Exception {
+<span class="nc" id="L113">    sendShippingRequest(order);</span>
+<span class="nc" id="L114">  }</span>
+
+  private void sendShippingRequest(Order order) throws Exception {
+<span class="nc" id="L117">    var list = shippingService.exceptionsList;</span>
+<span class="nc" id="L118">    Retry.Operation op = (l) -&gt; {</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">      if (!l.isEmpty()) {</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (DatabaseUnavailableException.class.isAssignableFrom(l.get(0).getClass())) {</span>
+<span class="nc" id="L121">          LOG.debug(&quot;Order &quot; + order.id + &quot;: Error in connecting to shipping service, &quot;</span>
+              + &quot;trying again..&quot;);
+        } else {
+<span class="nc" id="L124">          LOG.debug(&quot;Order &quot; + order.id + &quot;: Error in creating shipping request..&quot;);</span>
+        }
+<span class="nc" id="L126">        throw l.remove(0);</span>
+      }
+<span class="nc" id="L128">      String transactionId = shippingService.receiveRequest(order.item, order.user.address);</span>
+      //could save this transaction id in a db too
+<span class="nc" id="L130">      LOG.info(&quot;Order &quot; + order.id + &quot;: Shipping placed successfully, transaction id: &quot;</span>
+          + transactionId);
+<span class="nc" id="L132">      LOG.info(&quot;Order has been placed and will be shipped to you. Please wait while we make your&quot;</span>
+          + &quot; payment... &quot;);
+<span class="nc" id="L134">      sendPaymentRequest(order);</span>
+<span class="nc" id="L135">    };</span>
+<span class="nc" id="L136">    Retry.HandleErrorIssue&lt;Order&gt; handleError = (o, err) -&gt; {</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">      if (ShippingNotPossibleException.class.isAssignableFrom(err.getClass())) {</span>
+<span class="nc" id="L138">        LOG.info(&quot;Shipping is currently not possible to your address. We are working on the problem&quot;</span>
+            + &quot; and will get back to you asap.&quot;);
+<span class="nc" id="L140">        finalSiteMsgShown = true;</span>
+<span class="nc" id="L141">        LOG.info(&quot;Order &quot; + order.id + &quot;: Shipping not possible to address, trying to add problem &quot;</span>
+            + &quot;to employee db..&quot;);
+<span class="nc" id="L143">        employeeHandleIssue(o);</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">      } else if (ItemUnavailableException.class.isAssignableFrom(err.getClass())) {</span>
+<span class="nc" id="L145">        LOG.info(&quot;This item is currently unavailable. We will inform you as soon as the item &quot;</span>
+            + &quot;becomes available again.&quot;);
+<span class="nc" id="L147">        finalSiteMsgShown = true;</span>
+<span class="nc" id="L148">        LOG.info(&quot;Order &quot; + order.id + &quot;: Item &quot; + order.item + &quot; unavailable, trying to add &quot;</span>
+            + &quot;problem to employee handle..&quot;);
+<span class="nc" id="L150">        employeeHandleIssue(o);</span>
+      } else {
+<span class="nc" id="L152">        LOG.info(&quot;Sorry, there was a problem in creating your order. Please try later.&quot;);</span>
+<span class="nc" id="L153">        LOG.error(&quot;Order &quot; + order.id + &quot;: Shipping service unavailable, order not placed..&quot;);</span>
+<span class="nc" id="L154">        finalSiteMsgShown = true;</span>
+      }
+<span class="nc" id="L156">    };</span>
+<span class="nc" id="L157">    var r = new Retry&lt;&gt;(op, handleError, numOfRetries, retryDuration,</span>
+<span class="nc" id="L158">        e -&gt; DatabaseUnavailableException.class.isAssignableFrom(e.getClass()));</span>
+<span class="nc" id="L159">    r.perform(list, order);</span>
+<span class="nc" id="L160">  }</span>
+
+  private void sendPaymentRequest(Order order) {
+<span class="nc bnc" id="L163" title="All 2 branches missed.">    if (System.currentTimeMillis() - order.createdTime &gt;= this.paymentTime) {</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">      if (order.paid.equals(PaymentStatus.TRYING)) {</span>
+<span class="nc" id="L165">        order.paid = PaymentStatus.NOT_DONE;</span>
+<span class="nc" id="L166">        sendPaymentFailureMessage(order);</span>
+<span class="nc" id="L167">        LOG.error(&quot;Order &quot; + order.id + &quot;: Payment time for order over, failed and returning..&quot;);</span>
+      } //if succeeded or failed, would have been dequeued, no attempt to make payment     
+<span class="nc" id="L169">      return;</span>
+    }
+<span class="nc" id="L171">    var list = paymentService.exceptionsList;</span>
+<span class="nc" id="L172">    var t = new Thread(() -&gt; {</span>
+<span class="nc" id="L173">      Retry.Operation op = (l) -&gt; {</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        if (!l.isEmpty()) {</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">          if (DatabaseUnavailableException.class.isAssignableFrom(l.get(0).getClass())) {</span>
+<span class="nc" id="L176">            LOG.debug(&quot;Order &quot; + order.id + &quot;: Error in connecting to payment service,&quot;</span>
+                    + &quot; trying again..&quot;);
+          } else {
+<span class="nc" id="L179">            LOG.debug(&quot;Order &quot; + order.id + &quot;: Error in creating payment request..&quot;);</span>
+          }
+<span class="nc" id="L181">          throw l.remove(0);</span>
+        }
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        if (order.paid.equals(PaymentStatus.TRYING)) {</span>
+<span class="nc" id="L184">          var transactionId = paymentService.receiveRequest(order.price);</span>
+<span class="nc" id="L185">          order.paid = PaymentStatus.DONE;</span>
+<span class="nc" id="L186">          LOG.info(&quot;Order &quot; + order.id + &quot;: Payment successful, transaction Id: &quot; + transactionId);</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">          if (!finalSiteMsgShown) {</span>
+<span class="nc" id="L188">            LOG.info(&quot;Payment made successfully, thank you for shopping with us!!&quot;);</span>
+<span class="nc" id="L189">            finalSiteMsgShown = true;</span>
+          }
+<span class="nc" id="L191">          sendSuccessMessage(order);</span>
+        }
+<span class="nc" id="L193">      };</span>
+<span class="nc" id="L194">      Retry.HandleErrorIssue&lt;Order&gt; handleError = (o, err) -&gt; {</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        if (PaymentDetailsErrorException.class.isAssignableFrom(err.getClass())) {</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">          if (!finalSiteMsgShown) {</span>
+<span class="nc" id="L197">            LOG.info(&quot;There was an error in payment. Your account/card details &quot;</span>
+                    + &quot;may have been incorrect. &quot;
+                    + &quot;Meanwhile, your order has been converted to COD and will be shipped.&quot;);
+<span class="nc" id="L200">            finalSiteMsgShown = true;</span>
+          }
+<span class="nc" id="L202">          LOG.error(&quot;Order &quot; + order.id + &quot;: Payment details incorrect, failed..&quot;);</span>
+<span class="nc" id="L203">          o.paid = PaymentStatus.NOT_DONE;</span>
+<span class="nc" id="L204">          sendPaymentFailureMessage(o);</span>
+        } else {
+<span class="nc bnc" id="L206" title="All 2 branches missed.">          if (o.messageSent.equals(MessageSent.NONE_SENT)) {</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">            if (!finalSiteMsgShown) {</span>
+<span class="nc" id="L208">              LOG.info(&quot;There was an error in payment. We are on it, and will get back to you &quot;</span>
+                      + &quot;asap. Don't worry, your order has been placed and will be shipped.&quot;);
+<span class="nc" id="L210">              finalSiteMsgShown = true;</span>
+            }
+<span class="nc" id="L212">            LOG.warn(&quot;Order &quot; + order.id + &quot;: Payment error, going to queue..&quot;);</span>
+<span class="nc" id="L213">            sendPaymentPossibleErrorMsg(o);</span>
+          }
+<span class="nc bnc" id="L215" title="All 2 branches missed.">          if (o.paid.equals(PaymentStatus.TRYING) &amp;&amp; System</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">                  .currentTimeMillis() - o.createdTime &lt; paymentTime) {</span>
+<span class="nc" id="L217">            var qt = new QueueTask(o, TaskType.PAYMENT, -1);</span>
+<span class="nc" id="L218">            updateQueue(qt);</span>
+          }
+        }
+<span class="nc" id="L221">      };</span>
+<span class="nc" id="L222">      var r = new Retry&lt;&gt;(op, handleError, numOfRetries, retryDuration,</span>
+<span class="nc" id="L223">          e -&gt; DatabaseUnavailableException.class.isAssignableFrom(e.getClass()));</span>
+      try {
+<span class="nc" id="L225">        r.perform(list, order);</span>
+<span class="nc" id="L226">      } catch (Exception e1) {</span>
+<span class="nc" id="L227">        e1.printStackTrace();</span>
+<span class="nc" id="L228">      }</span>
+<span class="nc" id="L229">    });</span>
+<span class="nc" id="L230">    t.start();</span>
+<span class="nc" id="L231">  }</span>
+
+  private void updateQueue(QueueTask qt) {
+<span class="nc bnc" id="L234" title="All 2 branches missed.">    if (System.currentTimeMillis() - qt.order.createdTime &gt;= this.queueTime) {</span>
+      // since payment time is lesser than queuetime it would have already failed..
+      // additional check not needed
+<span class="nc" id="L237">      LOG.trace(&quot;Order &quot; + qt.order.id + &quot;: Queue time for order over, failed..&quot;);</span>
+<span class="nc" id="L238">      return;</span>
+<span class="nc bnc" id="L239" title="All 4 branches missed.">    } else if (qt.taskType.equals(TaskType.PAYMENT) &amp;&amp; !qt.order.paid.equals(PaymentStatus.TRYING)</span>
+<span class="nc bnc" id="L240" title="All 4 branches missed.">        || qt.taskType.equals(TaskType.MESSAGING) &amp;&amp; (qt.messageType == 1</span>
+<span class="nc bnc" id="L241" title="All 2 branches missed.">        &amp;&amp; !qt.order.messageSent.equals(MessageSent.NONE_SENT)</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">        || qt.order.messageSent.equals(MessageSent.PAYMENT_FAIL)</span>
+<span class="nc bnc" id="L243" title="All 2 branches missed.">        || qt.order.messageSent.equals(MessageSent.PAYMENT_SUCCESSFUL))</span>
+<span class="nc bnc" id="L244" title="All 4 branches missed.">        || qt.taskType.equals(TaskType.EMPLOYEE_DB) &amp;&amp; qt.order.addedToEmployeeHandle) {</span>
+<span class="nc" id="L245">      LOG.trace(&quot;Order &quot; + qt.order.id + &quot;: Not queueing task since task already done..&quot;);</span>
+<span class="nc" id="L246">      return;</span>
+    }
+<span class="nc" id="L248">    var list = queue.exceptionsList;</span>
+<span class="nc" id="L249">    Thread t = new Thread(() -&gt; {</span>
+<span class="nc" id="L250">      Retry.Operation op = (list1) -&gt; {</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">        if (!list1.isEmpty()) {</span>
+<span class="nc" id="L252">          LOG.warn(&quot;Order &quot; + qt.order.id + &quot;: Error in connecting to queue db, trying again..&quot;);</span>
+<span class="nc" id="L253">          throw list1.remove(0);</span>
+        }
+<span class="nc" id="L255">        queue.add(qt);</span>
+<span class="nc" id="L256">        queueItems++;</span>
+<span class="nc" id="L257">        LOG.info(&quot;Order &quot; + qt.order.id + &quot;: &quot; + qt.getType() + &quot; task enqueued..&quot;);</span>
+<span class="nc" id="L258">        tryDoingTasksInQueue();</span>
+<span class="nc" id="L259">      };</span>
+<span class="nc" id="L260">      Retry.HandleErrorIssue&lt;QueueTask&gt; handleError = (qt1, err) -&gt; {</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">        if (qt1.taskType.equals(TaskType.PAYMENT)) {</span>
+<span class="nc" id="L262">          qt1.order.paid = PaymentStatus.NOT_DONE;</span>
+<span class="nc" id="L263">          sendPaymentFailureMessage(qt1.order);</span>
+<span class="nc" id="L264">          LOG.error(&quot;Order &quot; + qt1.order.id + &quot;: Unable to enqueue payment task,&quot;</span>
+              + &quot; payment failed..&quot;);
+        }
+<span class="nc" id="L267">        LOG.error(&quot;Order &quot; + qt1.order.id + &quot;: Unable to enqueue task of type &quot; + qt1.getType()</span>
+            + &quot;, trying to add to employee handle..&quot;);
+<span class="nc" id="L269">        employeeHandleIssue(qt1.order);</span>
+<span class="nc" id="L270">      };</span>
+<span class="nc" id="L271">      var r = new Retry&lt;&gt;(op, handleError, numOfRetries, retryDuration,</span>
+<span class="nc" id="L272">          e -&gt; DatabaseUnavailableException.class.isAssignableFrom(e.getClass()));</span>
+      try {
+<span class="nc" id="L274">        r.perform(list, qt);</span>
+<span class="nc" id="L275">      } catch (Exception e1) {</span>
+<span class="nc" id="L276">        e1.printStackTrace();</span>
+<span class="nc" id="L277">      }</span>
+<span class="nc" id="L278">    });</span>
+<span class="nc" id="L279">    t.start();</span>
+<span class="nc" id="L280">  }</span>
+
+  private void tryDoingTasksInQueue() { //commander controls operations done to queue
+<span class="nc" id="L283">    var list = queue.exceptionsList;</span>
+<span class="nc" id="L284">    var t2 = new Thread(() -&gt; {</span>
+<span class="nc" id="L285">      Retry.Operation op = (list1) -&gt; {</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">        if (!list1.isEmpty()) {</span>
+<span class="nc" id="L287">          LOG.warn(&quot;Error in accessing queue db to do tasks, trying again..&quot;);</span>
+<span class="nc" id="L288">          throw list1.remove(0);</span>
+        }
+<span class="nc" id="L290">        doTasksInQueue();</span>
+<span class="nc" id="L291">      };</span>
+<span class="nc" id="L292">      Retry.HandleErrorIssue&lt;QueueTask&gt; handleError = (o, err) -&gt; {</span>
+<span class="nc" id="L293">      };</span>
+<span class="nc" id="L294">      var r = new Retry&lt;&gt;(op, handleError, numOfRetries, retryDuration,</span>
+<span class="nc" id="L295">          e -&gt; DatabaseUnavailableException.class.isAssignableFrom(e.getClass()));</span>
+      try {
+<span class="nc" id="L297">        r.perform(list, null);</span>
+<span class="nc" id="L298">      } catch (Exception e1) {</span>
+<span class="nc" id="L299">        e1.printStackTrace();</span>
+<span class="nc" id="L300">      }</span>
+<span class="nc" id="L301">    });</span>
+<span class="nc" id="L302">    t2.start();</span>
+<span class="nc" id="L303">  }</span>
+
+  private void tryDequeue() {
+<span class="nc" id="L306">    var list = queue.exceptionsList;</span>
+<span class="nc" id="L307">    var t3 = new Thread(() -&gt; {</span>
+<span class="nc" id="L308">      Retry.Operation op = (list1) -&gt; {</span>
+<span class="nc bnc" id="L309" title="All 2 branches missed.">        if (!list1.isEmpty()) {</span>
+<span class="nc" id="L310">          LOG.warn(&quot;Error in accessing queue db to dequeue task, trying again..&quot;);</span>
+<span class="nc" id="L311">          throw list1.remove(0);</span>
+        }
+<span class="nc" id="L313">        queue.dequeue();</span>
+<span class="nc" id="L314">        queueItems--;</span>
+<span class="nc" id="L315">      };</span>
+<span class="nc" id="L316">      Retry.HandleErrorIssue&lt;QueueTask&gt; handleError = (o, err) -&gt; {</span>
+<span class="nc" id="L317">      };</span>
+<span class="nc" id="L318">      var r = new Retry&lt;QueueTask&gt;(op, handleError, numOfRetries, retryDuration,</span>
+<span class="nc" id="L319">          e -&gt; DatabaseUnavailableException.class.isAssignableFrom(e.getClass()));</span>
+      try {
+<span class="nc" id="L321">        r.perform(list, null);</span>
+<span class="nc" id="L322">      } catch (Exception e1) {</span>
+<span class="nc" id="L323">        e1.printStackTrace();</span>
+<span class="nc" id="L324">      }</span>
+<span class="nc" id="L325">    });</span>
+<span class="nc" id="L326">    t3.start();</span>
+<span class="nc" id="L327">  }</span>
+
+  private void sendSuccessMessage(Order order) {
+<span class="nc bnc" id="L330" title="All 2 branches missed.">    if (System.currentTimeMillis() - order.createdTime &gt;= this.messageTime) {</span>
+<span class="nc" id="L331">      LOG.trace(&quot;Order &quot; + order.id + &quot;: Message time for order over, returning..&quot;);</span>
+<span class="nc" id="L332">      return;</span>
+    }
+<span class="nc" id="L334">    var list = messagingService.exceptionsList;</span>
+<span class="nc" id="L335">    Thread t = new Thread(() -&gt; {</span>
+<span class="nc" id="L336">      Retry.Operation op = handleSuccessMessageRetryOperation(order);</span>
+<span class="nc" id="L337">      Retry.HandleErrorIssue&lt;Order&gt; handleError = (o, err) -&gt; {</span>
+<span class="nc" id="L338">        handleSuccessMessageErrorIssue(order, o);</span>
+<span class="nc" id="L339">      };</span>
+<span class="nc" id="L340">      var r = new Retry&lt;&gt;(op, handleError, numOfRetries, retryDuration,</span>
+<span class="nc" id="L341">          e -&gt; DatabaseUnavailableException.class.isAssignableFrom(e.getClass()));</span>
+      try {
+<span class="nc" id="L343">        r.perform(list, order);</span>
+<span class="nc" id="L344">      } catch (Exception e1) {</span>
+<span class="nc" id="L345">        e1.printStackTrace();</span>
+<span class="nc" id="L346">      }</span>
+<span class="nc" id="L347">    });</span>
+<span class="nc" id="L348">    t.start();</span>
+<span class="nc" id="L349">  }</span>
+
+  private void handleSuccessMessageErrorIssue(Order order, Order o) {
+<span class="nc bnc" id="L352" title="All 2 branches missed.">    if ((o.messageSent.equals(MessageSent.NONE_SENT) || o.messageSent</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">        .equals(MessageSent.PAYMENT_TRYING))</span>
+<span class="nc bnc" id="L354" title="All 2 branches missed.">        &amp;&amp; System.currentTimeMillis() - o.createdTime &lt; messageTime) {</span>
+<span class="nc" id="L355">      var qt = new QueueTask(order, TaskType.MESSAGING, 2);</span>
+<span class="nc" id="L356">      updateQueue(qt);</span>
+<span class="nc" id="L357">      LOG.info(&quot;Order &quot; + order.id + &quot;: Error in sending Payment Success message, trying to&quot;</span>
+          + &quot; queue task and add to employee handle..&quot;);
+<span class="nc" id="L359">      employeeHandleIssue(order);</span>
+    }
+<span class="nc" id="L361">  }</span>
+
+  private Retry.Operation handleSuccessMessageRetryOperation(Order order) {
+<span class="nc" id="L364">    return (l) -&gt; {</span>
+<span class="nc bnc" id="L365" title="All 2 branches missed.">      if (!l.isEmpty()) {</span>
+<span class="nc bnc" id="L366" title="All 2 branches missed.">        if (DatabaseUnavailableException.class.isAssignableFrom(l.get(0).getClass())) {</span>
+<span class="nc" id="L367">          LOG.debug(&quot;Order &quot; + order.id + &quot;: Error in connecting to messaging service &quot;</span>
+              + &quot;(Payment Success msg), trying again..&quot;);
+        } else {
+<span class="nc" id="L370">          LOG.debug(&quot;Order &quot; + order.id + &quot;: Error in creating Payment Success&quot;</span>
+              + &quot; messaging request..&quot;);
+        }
+<span class="nc" id="L373">        throw l.remove(0);</span>
+      }
+<span class="nc bnc" id="L375" title="All 2 branches missed.">      if (!order.messageSent.equals(MessageSent.PAYMENT_FAIL)</span>
+<span class="nc bnc" id="L376" title="All 2 branches missed.">          &amp;&amp; !order.messageSent.equals(MessageSent.PAYMENT_SUCCESSFUL)) {</span>
+<span class="nc" id="L377">        var requestId = messagingService.receiveRequest(2);</span>
+<span class="nc" id="L378">        order.messageSent = MessageSent.PAYMENT_SUCCESSFUL;</span>
+<span class="nc" id="L379">        LOG.info(&quot;Order &quot; + order.id + &quot;: Payment Success message sent,&quot;</span>
+            + &quot; request Id: &quot; + requestId);
+      }
+<span class="nc" id="L382">    };</span>
+  }
+
+  private void sendPaymentFailureMessage(Order order) {
+<span class="nc bnc" id="L386" title="All 2 branches missed.">    if (System.currentTimeMillis() - order.createdTime &gt;= this.messageTime) {</span>
+<span class="nc" id="L387">      LOG.trace(&quot;Order &quot; + order.id + &quot;: Message time for order over, returning..&quot;);</span>
+<span class="nc" id="L388">      return;</span>
+    }
+<span class="nc" id="L390">    var list = messagingService.exceptionsList;</span>
+<span class="nc" id="L391">    var t = new Thread(() -&gt; {</span>
+<span class="nc" id="L392">      Retry.Operation op = (l) -&gt; {</span>
+<span class="nc" id="L393">        handlePaymentFailureRetryOperation(order, l);</span>
+<span class="nc" id="L394">      };</span>
+<span class="nc" id="L395">      Retry.HandleErrorIssue&lt;Order&gt; handleError = (o, err) -&gt; {</span>
+<span class="nc" id="L396">        handlePaymentErrorIssue(order, o);</span>
+<span class="nc" id="L397">      };</span>
+<span class="nc" id="L398">      var r = new Retry&lt;&gt;(op, handleError, numOfRetries, retryDuration,</span>
+<span class="nc" id="L399">          e -&gt; DatabaseUnavailableException.class.isAssignableFrom(e.getClass()));</span>
+      try {
+<span class="nc" id="L401">        r.perform(list, order);</span>
+<span class="nc" id="L402">      } catch (Exception e1) {</span>
+<span class="nc" id="L403">        e1.printStackTrace();</span>
+<span class="nc" id="L404">      }</span>
+<span class="nc" id="L405">    });</span>
+<span class="nc" id="L406">    t.start();</span>
+<span class="nc" id="L407">  }</span>
+
+  private void handlePaymentErrorIssue(Order order, Order o) {
+<span class="nc bnc" id="L410" title="All 2 branches missed.">    if ((o.messageSent.equals(MessageSent.NONE_SENT) || o.messageSent</span>
+<span class="nc bnc" id="L411" title="All 2 branches missed.">        .equals(MessageSent.PAYMENT_TRYING))</span>
+<span class="nc bnc" id="L412" title="All 2 branches missed.">        &amp;&amp; System.currentTimeMillis() - o.createdTime &lt; messageTime) {</span>
+<span class="nc" id="L413">      var qt = new QueueTask(order, TaskType.MESSAGING, 0);</span>
+<span class="nc" id="L414">      updateQueue(qt);</span>
+<span class="nc" id="L415">      LOG.warn(&quot;Order &quot; + order.id + &quot;: Error in sending Payment Failure message, &quot;</span>
+          + &quot;trying to queue task and add to employee handle..&quot;);
+<span class="nc" id="L417">      employeeHandleIssue(o);</span>
+    }
+<span class="nc" id="L419">  }</span>
+
+  private void handlePaymentFailureRetryOperation(Order order, List&lt;Exception&gt; l) throws Exception {
+<span class="nc bnc" id="L422" title="All 2 branches missed.">    if (!l.isEmpty()) {</span>
+<span class="nc bnc" id="L423" title="All 2 branches missed.">      if (DatabaseUnavailableException.class.isAssignableFrom(l.get(0).getClass())) {</span>
+<span class="nc" id="L424">        LOG.debug(&quot;Order &quot; + order.id + &quot;: Error in connecting to messaging service &quot;</span>
+            + &quot;(Payment Failure msg), trying again..&quot;);
+      } else {
+<span class="nc" id="L427">        LOG.debug(&quot;Order &quot; + order.id + &quot;: Error in creating Payment Failure&quot;</span>
+            + &quot; message request..&quot;);
+      }
+<span class="nc" id="L430">      throw l.remove(0);</span>
+    }
+<span class="nc bnc" id="L432" title="All 2 branches missed.">    if (!order.messageSent.equals(MessageSent.PAYMENT_FAIL)</span>
+<span class="nc bnc" id="L433" title="All 2 branches missed.">        &amp;&amp; !order.messageSent.equals(MessageSent.PAYMENT_SUCCESSFUL)) {</span>
+<span class="nc" id="L434">      var requestId = messagingService.receiveRequest(0);</span>
+<span class="nc" id="L435">      order.messageSent = MessageSent.PAYMENT_FAIL;</span>
+<span class="nc" id="L436">      LOG.info(&quot;Order &quot; + order.id + &quot;: Payment Failure message sent successfully,&quot;</span>
+          + &quot; request Id: &quot; + requestId);
+    }
+<span class="nc" id="L439">  }</span>
+
+  private void sendPaymentPossibleErrorMsg(Order order) {
+<span class="nc bnc" id="L442" title="All 2 branches missed.">    if (System.currentTimeMillis() - order.createdTime &gt;= this.messageTime) {</span>
+<span class="nc" id="L443">      LOG.trace(&quot;Message time for order over, returning..&quot;);</span>
+<span class="nc" id="L444">      return;</span>
+    }
+<span class="nc" id="L446">    var list = messagingService.exceptionsList;</span>
+<span class="nc" id="L447">    var t = new Thread(() -&gt; {</span>
+<span class="nc" id="L448">      Retry.Operation op = (l) -&gt; {</span>
+<span class="nc" id="L449">        handlePaymentPossibleErrorMsgRetryOperation(order, l);</span>
+<span class="nc" id="L450">      };</span>
+<span class="nc" id="L451">      Retry.HandleErrorIssue&lt;Order&gt; handleError = (o, err) -&gt; {</span>
+<span class="nc" id="L452">        handlePaymentPossibleErrorMsgErrorIssue(order, o);</span>
+<span class="nc" id="L453">      };</span>
+<span class="nc" id="L454">      var r = new Retry&lt;&gt;(op, handleError, numOfRetries, retryDuration,</span>
+<span class="nc" id="L455">          e -&gt; DatabaseUnavailableException.class.isAssignableFrom(e.getClass()));</span>
+      try {
+<span class="nc" id="L457">        r.perform(list, order);</span>
+<span class="nc" id="L458">      } catch (Exception e1) {</span>
+<span class="nc" id="L459">        e1.printStackTrace();</span>
+<span class="nc" id="L460">      }</span>
+<span class="nc" id="L461">    });</span>
+<span class="nc" id="L462">    t.start();</span>
+<span class="nc" id="L463">  }</span>
+
+  private void handlePaymentPossibleErrorMsgErrorIssue(Order order, Order o) {
+<span class="nc bnc" id="L466" title="All 2 branches missed.">    if (o.messageSent.equals(MessageSent.NONE_SENT) &amp;&amp; order.paid</span>
+<span class="nc bnc" id="L467" title="All 2 branches missed.">        .equals(PaymentStatus.TRYING)</span>
+<span class="nc bnc" id="L468" title="All 2 branches missed.">        &amp;&amp; System.currentTimeMillis() - o.createdTime &lt; messageTime) {</span>
+<span class="nc" id="L469">      var qt = new QueueTask(order, TaskType.MESSAGING, 1);</span>
+<span class="nc" id="L470">      updateQueue(qt);</span>
+<span class="nc" id="L471">      LOG.warn(&quot;Order &quot; + order.id + &quot;: Error in sending Payment Error message, &quot;</span>
+          + &quot;trying to queue task and add to employee handle..&quot;);
+<span class="nc" id="L473">      employeeHandleIssue(o);</span>
+    }
+<span class="nc" id="L475">  }</span>
+
+  private void handlePaymentPossibleErrorMsgRetryOperation(Order order, List&lt;Exception&gt; l)
+          throws Exception {
+<span class="nc bnc" id="L479" title="All 2 branches missed.">    if (!l.isEmpty()) {</span>
+<span class="nc bnc" id="L480" title="All 2 branches missed.">      if (DatabaseUnavailableException.class.isAssignableFrom(l.get(0).getClass())) {</span>
+<span class="nc" id="L481">        LOG.debug(&quot;Order &quot; + order.id + &quot;: Error in connecting to messaging service &quot;</span>
+            + &quot;(Payment Error msg), trying again..&quot;);
+      } else {
+<span class="nc" id="L484">        LOG.debug(&quot;Order &quot; + order.id + &quot;: Error in creating Payment Error&quot;</span>
+            + &quot; messaging request..&quot;);
+      }
+<span class="nc" id="L487">      throw l.remove(0);</span>
+    }
+<span class="nc bnc" id="L489" title="All 2 branches missed.">    if (order.paid.equals(PaymentStatus.TRYING) &amp;&amp; order.messageSent</span>
+<span class="nc bnc" id="L490" title="All 2 branches missed.">        .equals(MessageSent.NONE_SENT)) {</span>
+<span class="nc" id="L491">      var requestId = messagingService.receiveRequest(1);</span>
+<span class="nc" id="L492">      order.messageSent = MessageSent.PAYMENT_TRYING;</span>
+<span class="nc" id="L493">      LOG.info(&quot;Order &quot; + order.id + &quot;: Payment Error message sent successfully,&quot;</span>
+          + &quot; request Id: &quot; + requestId);
+    }
+<span class="nc" id="L496">  }</span>
+
+  private void employeeHandleIssue(Order order) {
+<span class="nc bnc" id="L499" title="All 2 branches missed.">    if (System.currentTimeMillis() - order.createdTime &gt;= this.employeeTime) {</span>
+<span class="nc" id="L500">      LOG.trace(&quot;Order &quot; + order.id + &quot;: Employee handle time for order over, returning..&quot;);</span>
+<span class="nc" id="L501">      return;</span>
+    }
+<span class="nc" id="L503">    var list = employeeDb.exceptionsList;</span>
+<span class="nc" id="L504">    var t = new Thread(() -&gt; {</span>
+<span class="nc" id="L505">      Retry.Operation op = (l) -&gt; {</span>
+<span class="nc bnc" id="L506" title="All 2 branches missed.">        if (!l.isEmpty()) {</span>
+<span class="nc" id="L507">          LOG.warn(&quot;Order &quot; + order.id + &quot;: Error in connecting to employee handle,&quot;</span>
+              + &quot; trying again..&quot;);
+<span class="nc" id="L509">          throw l.remove(0);</span>
+        }
+<span class="nc bnc" id="L511" title="All 2 branches missed.">        if (!order.addedToEmployeeHandle) {</span>
+<span class="nc" id="L512">          employeeDb.receiveRequest(order);</span>
+<span class="nc" id="L513">          order.addedToEmployeeHandle = true;</span>
+<span class="nc" id="L514">          LOG.info(&quot;Order &quot; + order.id + &quot;: Added order to employee database&quot;);</span>
+        }
+<span class="nc" id="L516">      };</span>
+<span class="nc" id="L517">      Retry.HandleErrorIssue&lt;Order&gt; handleError = (o, err) -&gt; {</span>
+<span class="nc bnc" id="L518" title="All 2 branches missed.">        if (!o.addedToEmployeeHandle &amp;&amp; System</span>
+<span class="nc bnc" id="L519" title="All 2 branches missed.">            .currentTimeMillis() - order.createdTime &lt; employeeTime) {</span>
+<span class="nc" id="L520">          var qt = new QueueTask(order, TaskType.EMPLOYEE_DB, -1);</span>
+<span class="nc" id="L521">          updateQueue(qt);</span>
+<span class="nc" id="L522">          LOG.warn(&quot;Order &quot; + order.id + &quot;: Error in adding to employee db,&quot;</span>
+              + &quot; trying to queue task..&quot;);
+        }
+<span class="nc" id="L525">      };</span>
+<span class="nc" id="L526">      var r = new Retry&lt;&gt;(op, handleError, numOfRetries, retryDuration,</span>
+<span class="nc" id="L527">          e -&gt; DatabaseUnavailableException.class.isAssignableFrom(e.getClass()));</span>
+      try {
+<span class="nc" id="L529">        r.perform(list, order);</span>
+<span class="nc" id="L530">      } catch (Exception e1) {</span>
+<span class="nc" id="L531">        e1.printStackTrace();</span>
+<span class="nc" id="L532">      }</span>
+<span class="nc" id="L533">    });</span>
+<span class="nc" id="L534">    t.start();</span>
+<span class="nc" id="L535">  }</span>
+
+  private void doTasksInQueue() throws Exception {
+<span class="nc bnc" id="L538" title="All 2 branches missed.">    if (queueItems != 0) {</span>
+<span class="nc" id="L539">      var qt = queue.peek(); //this should probably be cloned here</span>
+      //this is why we have retry for doTasksInQueue
+<span class="nc" id="L541">      LOG.trace(&quot;Order &quot; + qt.order.id + &quot;: Started doing task of type &quot; + qt.getType());</span>
+<span class="nc bnc" id="L542" title="All 2 branches missed.">      if (qt.firstAttemptTime == -1) {</span>
+<span class="nc" id="L543">        qt.firstAttemptTime = System.currentTimeMillis();</span>
+      }
+<span class="nc bnc" id="L545" title="All 2 branches missed.">      if (System.currentTimeMillis() - qt.firstAttemptTime &gt;= queueTaskTime) {</span>
+<span class="nc" id="L546">        tryDequeue();</span>
+<span class="nc" id="L547">        LOG.trace(&quot;Order &quot; + qt.order.id + &quot;: This queue task of type &quot; + qt.getType()</span>
+            + &quot; does not need to be done anymore (timeout), dequeue..&quot;);
+      } else {
+<span class="nc bnc" id="L550" title="All 2 branches missed.">        if (qt.taskType.equals(TaskType.PAYMENT)) {</span>
+<span class="nc bnc" id="L551" title="All 2 branches missed.">          if (!qt.order.paid.equals(PaymentStatus.TRYING)) {</span>
+<span class="nc" id="L552">            tryDequeue();</span>
+<span class="nc" id="L553">            LOG.trace(&quot;Order &quot; + qt.order.id + &quot;: This payment task already done, dequeueing..&quot;);</span>
+          } else {
+<span class="nc" id="L555">            sendPaymentRequest(qt.order);</span>
+<span class="nc" id="L556">            LOG.debug(&quot;Order &quot; + qt.order.id + &quot;: Trying to connect to payment service..&quot;);</span>
+          }
+<span class="nc bnc" id="L558" title="All 2 branches missed.">        } else if (qt.taskType.equals(TaskType.MESSAGING)) {</span>
+<span class="nc bnc" id="L559" title="All 2 branches missed.">          if (qt.order.messageSent.equals(MessageSent.PAYMENT_FAIL)</span>
+<span class="nc bnc" id="L560" title="All 2 branches missed.">              || qt.order.messageSent.equals(MessageSent.PAYMENT_SUCCESSFUL)) {</span>
+<span class="nc" id="L561">            tryDequeue();</span>
+<span class="nc" id="L562">            LOG.trace(&quot;Order &quot; + qt.order.id + &quot;: This messaging task already done, dequeue..&quot;);</span>
+<span class="nc bnc" id="L563" title="All 4 branches missed.">          } else if (qt.messageType == 1 &amp;&amp; (!qt.order.messageSent.equals(MessageSent.NONE_SENT)</span>
+<span class="nc bnc" id="L564" title="All 2 branches missed.">              || !qt.order.paid.equals(PaymentStatus.TRYING))) {</span>
+<span class="nc" id="L565">            tryDequeue();</span>
+<span class="nc" id="L566">            LOG.trace(&quot;Order &quot; + qt.order.id + &quot;: This messaging task does not need to be done,&quot;</span>
+                + &quot; dequeue..&quot;);
+<span class="nc bnc" id="L568" title="All 2 branches missed.">          } else if (qt.messageType == 0) {</span>
+<span class="nc" id="L569">            sendPaymentFailureMessage(qt.order);</span>
+<span class="nc" id="L570">            LOG.debug(&quot;Order &quot; + qt.order.id + &quot;: Trying to connect to messaging service..&quot;);</span>
+<span class="nc bnc" id="L571" title="All 2 branches missed.">          } else if (qt.messageType == 1) {</span>
+<span class="nc" id="L572">            sendPaymentPossibleErrorMsg(qt.order);</span>
+<span class="nc" id="L573">            LOG.debug(&quot;Order &quot; + qt.order.id + &quot;: Trying to connect to messaging service..&quot;);</span>
+<span class="nc bnc" id="L574" title="All 2 branches missed.">          } else if (qt.messageType == 2) {</span>
+<span class="nc" id="L575">            sendSuccessMessage(qt.order);</span>
+<span class="nc" id="L576">            LOG.debug(&quot;Order &quot; + qt.order.id + &quot;: Trying to connect to messaging service..&quot;);</span>
+          }
+<span class="nc bnc" id="L578" title="All 2 branches missed.">        } else if (qt.taskType.equals(TaskType.EMPLOYEE_DB)) {</span>
+<span class="nc bnc" id="L579" title="All 2 branches missed.">          if (qt.order.addedToEmployeeHandle) {</span>
+<span class="nc" id="L580">            tryDequeue();</span>
+<span class="nc" id="L581">            LOG.trace(&quot;Order &quot; + qt.order.id + &quot;: This employee handle task already done,&quot;</span>
+                + &quot; dequeue..&quot;);
+          } else {
+<span class="nc" id="L584">            employeeHandleIssue(qt.order);</span>
+<span class="nc" id="L585">            LOG.debug(&quot;Order &quot; + qt.order.id + &quot;: Trying to connect to employee handle..&quot;);</span>
+          }
+        }
+      }
+    }
+<span class="nc bnc" id="L590" title="All 2 branches missed.">    if (queueItems == 0) {</span>
+<span class="nc" id="L591">      LOG.trace(&quot;Queue is empty, returning..&quot;);</span>
+    } else {
+<span class="nc" id="L593">      Thread.sleep(queueTaskTime / 3);</span>
+<span class="nc" id="L594">      tryDoingTasksInQueue();</span>
+    }
+<span class="nc" id="L596">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

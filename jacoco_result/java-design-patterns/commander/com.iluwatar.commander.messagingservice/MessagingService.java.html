@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MessagingService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.commander.messagingservice</a> &gt; <span class="el_source">MessagingService.java</span></div><h1>MessagingService.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.commander.messagingservice;
+
+import com.iluwatar.commander.Service;
+import com.iluwatar.commander.exceptions.DatabaseUnavailableException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * The MessagingService is used to send messages to user regarding their order and payment status.
+ * In case an error is encountered in payment and this service is found to be unavailable, the order
+ * is added to the {@link com.iluwatar.commander.employeehandle.EmployeeDatabase}.
+ */
+
+public class MessagingService extends Service {
+<span class="nc" id="L38">  private static final Logger LOGGER = LoggerFactory.getLogger(MessagingService.class);</span>
+
+<span class="nc" id="L40">  enum MessageToSend {</span>
+<span class="nc" id="L41">    PAYMENT_FAIL, PAYMENT_TRYING, PAYMENT_SUCCESSFUL</span>
+  }
+
+  class MessageRequest {
+    String reqId;
+    MessageToSend msg;
+
+<span class="nc" id="L48">    MessageRequest(String reqId, MessageToSend msg) {</span>
+<span class="nc" id="L49">      this.reqId = reqId;</span>
+<span class="nc" id="L50">      this.msg = msg;</span>
+<span class="nc" id="L51">    }</span>
+  }
+
+  public MessagingService(MessagingDatabase db, Exception... exc) {
+<span class="nc" id="L55">    super(db, exc);</span>
+<span class="nc" id="L56">  }</span>
+
+  /**
+   * Public method which will receive request from {@link com.iluwatar.commander.Commander}.
+   */
+  public String receiveRequest(Object... parameters) throws DatabaseUnavailableException {
+<span class="nc" id="L62">    var messageToSend = (int) parameters[0];</span>
+<span class="nc" id="L63">    var id = generateId();</span>
+    MessageToSend msg;
+<span class="nc bnc" id="L65" title="All 2 branches missed.">    if (messageToSend == 0) {</span>
+<span class="nc" id="L66">      msg = MessageToSend.PAYMENT_FAIL;</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">    } else if (messageToSend == 1) {</span>
+<span class="nc" id="L68">      msg = MessageToSend.PAYMENT_TRYING;</span>
+    } else { //messageToSend == 2
+<span class="nc" id="L70">      msg = MessageToSend.PAYMENT_SUCCESSFUL;</span>
+    }
+<span class="nc" id="L72">    var req = new MessageRequest(id, msg);</span>
+<span class="nc" id="L73">    return updateDb(req);</span>
+  }
+
+  protected String updateDb(Object... parameters) throws DatabaseUnavailableException {
+<span class="nc" id="L77">    var req = (MessageRequest) parameters[0];</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">    if (this.database.get(req.reqId) == null) { //idempotence, in case db fails here</span>
+<span class="nc" id="L79">      database.add(req); //if successful:</span>
+<span class="nc" id="L80">      LOGGER.info(sendMessage(req.msg));</span>
+<span class="nc" id="L81">      return req.reqId;</span>
+    }
+<span class="nc" id="L83">    return null;</span>
+  }
+
+  String sendMessage(MessageToSend m) {
+<span class="nc bnc" id="L87" title="All 2 branches missed.">    if (m.equals(MessageToSend.PAYMENT_SUCCESSFUL)) {</span>
+<span class="nc" id="L88">      return &quot;Msg: Your order has been placed and paid for successfully!&quot;</span>
+          + &quot; Thank you for shopping with us!&quot;;
+<span class="nc bnc" id="L90" title="All 2 branches missed.">    } else if (m.equals(MessageToSend.PAYMENT_TRYING)) {</span>
+<span class="nc" id="L91">      return &quot;Msg: There was an error in your payment process,&quot;</span>
+          + &quot; we are working on it and will return back to you shortly.&quot;
+          + &quot; Meanwhile, your order has been placed and will be shipped.&quot;;
+    } else {
+<span class="nc" id="L95">      return &quot;Msg: There was an error in your payment process.&quot;</span>
+          + &quot; Your order is placed and has been converted to COD.&quot;
+          + &quot; Please reach us on CUSTOMER-CARE-NUBER in case of any queries.&quot;
+          + &quot; Thank you for shopping with us!&quot;;
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

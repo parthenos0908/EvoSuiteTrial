@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.abstractfactory</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.abstractfactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * The Abstract Factory pattern provides a way to encapsulate a group of individual factories that
+ * have a common theme without specifying their concrete classes. In normal usage, the client
+ * software creates a concrete implementation of the abstract factory and then uses the generic
+ * interface of the factory to create the concrete objects that are part of the theme. The client
+ * does not know (or care) which concrete objects it gets from each of these internal factories,
+ * since it uses only the generic interfaces of their products. This pattern separates the details
+ * of implementation of a set of objects from their general usage and relies on object composition,
+ * as object creation is implemented in methods exposed in the factory interface.
+ *
+ * &lt;p&gt;The essence of the Abstract Factory pattern is a factory interface ({@link KingdomFactory})
+ * and its implementations ( {@link ElfKingdomFactory}, {@link OrcKingdomFactory}). The example uses
+ * both concrete implementations to create a king, a castle and an army.
+ */
+<span class="fc" id="L43">public class App implements Runnable {</span>
+
+<span class="fc" id="L45">  private static Logger log = LoggerFactory.getLogger(App.class);</span>
+
+<span class="fc" id="L47">  private final Kingdom kingdom = new Kingdom();</span>
+
+  public Kingdom getKingdom() {
+<span class="fc" id="L50">    return kingdom;</span>
+  }
+
+  /**
+   * Program entry point.
+   *
+   * @param args command line args
+   */
+  public static void main(String[] args) {
+<span class="fc" id="L59">    var app = new App();</span>
+<span class="fc" id="L60">    app.run();</span>
+<span class="fc" id="L61">  }</span>
+
+  @Override
+  public void run() {
+<span class="fc" id="L65">    log.info(&quot;Elf Kingdom&quot;);</span>
+<span class="fc" id="L66">    createKingdom(Kingdom.FactoryMaker.KingdomType.ELF);</span>
+<span class="fc" id="L67">    log.info(kingdom.getArmy().getDescription());</span>
+<span class="fc" id="L68">    log.info(kingdom.getCastle().getDescription());</span>
+<span class="fc" id="L69">    log.info(kingdom.getKing().getDescription());</span>
+
+<span class="fc" id="L71">    log.info(&quot;Orc Kingdom&quot;);</span>
+<span class="fc" id="L72">    createKingdom(Kingdom.FactoryMaker.KingdomType.ORC);</span>
+<span class="fc" id="L73">    log.info(kingdom.getArmy().getDescription());</span>
+<span class="fc" id="L74">    log.info(kingdom.getCastle().getDescription());</span>
+<span class="fc" id="L75">    log.info(kingdom.getKing().getDescription());</span>
+<span class="fc" id="L76">  }</span>
+
+  /**
+   * Creates kingdom.
+   * @param kingdomType type of Kingdom
+   */
+  public void createKingdom(final Kingdom.FactoryMaker.KingdomType kingdomType) {
+<span class="fc" id="L83">    final KingdomFactory kingdomFactory = Kingdom.FactoryMaker.makeFactory(kingdomType);</span>
+<span class="fc" id="L84">    kingdom.setKing(kingdomFactory.createKing());</span>
+<span class="fc" id="L85">    kingdom.setCastle(kingdomFactory.createCastle());</span>
+<span class="fc" id="L86">    kingdom.setArmy(kingdomFactory.createArmy());</span>
+<span class="fc" id="L87">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.specification.app</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.specification.app;
+
+import com.iluwatar.specification.creature.Creature;
+import com.iluwatar.specification.creature.Dragon;
+import com.iluwatar.specification.creature.Goblin;
+import com.iluwatar.specification.creature.KillerBee;
+import com.iluwatar.specification.creature.Octopus;
+import com.iluwatar.specification.creature.Shark;
+import com.iluwatar.specification.creature.Troll;
+import com.iluwatar.specification.property.Color;
+import com.iluwatar.specification.property.Movement;
+import com.iluwatar.specification.selector.ColorSelector;
+import com.iluwatar.specification.selector.MassEqualSelector;
+import com.iluwatar.specification.selector.MassGreaterThanSelector;
+import com.iluwatar.specification.selector.MassSmallerThanOrEqSelector;
+import com.iluwatar.specification.selector.MovementSelector;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * &lt;p&gt;The central idea of the Specification pattern is to separate the statement of how to match a
+ * candidate, from the candidate object that it is matched against. As well as its usefulness in
+ * selection, it is also valuable for validation and for building to order.&lt;/p&gt;
+ *
+ * &lt;p&gt;In this example we have a pool of creatures with different properties. We then have defined
+ * separate selection rules (Specifications) that we apply to the collection and as output receive
+ * only the creatures that match the selection criteria.&lt;/p&gt;
+ *
+ * &lt;p&gt;http://martinfowler.com/apsupp/spec.pdf&lt;/p&gt;
+ */
+<span class="nc" id="L57">public class App {</span>
+
+<span class="fc" id="L59">  private static final Logger LOGGER = LoggerFactory.getLogger(App.class);</span>
+
+  /**
+   * Program entry point.
+   */
+  public static void main(String[] args) {
+    // initialize creatures list
+<span class="fc" id="L66">    var creatures = List.of(</span>
+        new Goblin(),
+        new Octopus(),
+        new Dragon(),
+        new Shark(),
+        new Troll(),
+        new KillerBee()
+    );
+    // so-called &quot;hard-coded&quot; specification
+<span class="fc" id="L75">    LOGGER.info(&quot;Demonstrating hard-coded specification :&quot;);</span>
+    // find all walking creatures
+<span class="fc" id="L77">    LOGGER.info(&quot;Find all walking creatures&quot;);</span>
+<span class="fc" id="L78">    print(creatures, new MovementSelector(Movement.WALKING));</span>
+    // find all dark creatures
+<span class="fc" id="L80">    LOGGER.info(&quot;Find all dark creatures&quot;);</span>
+<span class="fc" id="L81">    print(creatures, new ColorSelector(Color.DARK));</span>
+<span class="fc" id="L82">    LOGGER.info(&quot;\n&quot;);</span>
+    // so-called &quot;parameterized&quot; specification
+<span class="fc" id="L84">    LOGGER.info(&quot;Demonstrating parameterized specification :&quot;);</span>
+    // find all creatures heavier than 500kg
+<span class="fc" id="L86">    LOGGER.info(&quot;Find all creatures heavier than 600kg&quot;);</span>
+<span class="fc" id="L87">    print(creatures, new MassGreaterThanSelector(600.0));</span>
+    // find all creatures heavier than 500kg
+<span class="fc" id="L89">    LOGGER.info(&quot;Find all creatures lighter than or weighing exactly 500kg&quot;);</span>
+<span class="fc" id="L90">    print(creatures, new MassSmallerThanOrEqSelector(500.0));</span>
+<span class="fc" id="L91">    LOGGER.info(&quot;\n&quot;);</span>
+    // so-called &quot;composite&quot; specification
+<span class="fc" id="L93">    LOGGER.info(&quot;Demonstrating composite specification :&quot;);</span>
+    // find all red and flying creatures
+<span class="fc" id="L95">    LOGGER.info(&quot;Find all red and flying creatures&quot;);</span>
+<span class="fc" id="L96">    var redAndFlying = new ColorSelector(Color.RED).and(new MovementSelector(Movement.FLYING));</span>
+<span class="fc" id="L97">    print(creatures, redAndFlying);</span>
+    // find all creatures dark or red, non-swimming, and heavier than or equal to 400kg
+<span class="fc" id="L99">    LOGGER.info(&quot;Find all scary creatures&quot;);</span>
+<span class="fc" id="L100">    var scaryCreaturesSelector = new ColorSelector(Color.DARK)</span>
+<span class="fc" id="L101">        .or(new ColorSelector(Color.RED)).and(new MovementSelector(Movement.SWIMMING).not())</span>
+<span class="fc" id="L102">        .and(new MassGreaterThanSelector(400.0).or(new MassEqualSelector(400.0)));</span>
+<span class="fc" id="L103">    print(creatures, scaryCreaturesSelector);</span>
+<span class="fc" id="L104">  }</span>
+
+  private static void print(List&lt;? extends Creature&gt; creatures, Predicate&lt;Creature&gt; selector) {
+<span class="fc" id="L107">    creatures.stream().filter(selector).map(Objects::toString).forEach(LOGGER::info);</span>
+<span class="fc" id="L108">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

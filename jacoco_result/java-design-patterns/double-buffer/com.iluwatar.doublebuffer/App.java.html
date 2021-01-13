@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.doublebuffer</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.doublebuffer;
+
+import java.util.List;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Double buffering is a term used to describe a device that has two buffers. The usage of multiple
+ * buffers increases the overall throughput of a device and helps prevents bottlenecks. This example
+ * shows using double buffer pattern on graphics. It is used to show one image or frame while a
+ * separate frame is being buffered to be shown next. This method makes animations and games look
+ * more realistic than the same done in a single buffer mode.
+ */
+<span class="nc" id="L38">public class App {</span>
+
+<span class="nc" id="L40">  private static final Logger LOGGER = LoggerFactory.getLogger(App.class);</span>
+
+  /**
+   * Program main entry point.
+   *
+   * @param args runtime arguments
+   */
+  public static void main(String[] args) {
+<span class="nc" id="L48">    final var scene = new Scene();</span>
+<span class="nc" id="L49">    var drawPixels1 = List.of(</span>
+<span class="nc" id="L50">        new MutablePair&lt;&gt;(1, 1),</span>
+<span class="nc" id="L51">        new MutablePair&lt;&gt;(5, 6),</span>
+<span class="nc" id="L52">        new MutablePair&lt;&gt;(3, 2)</span>
+    );
+<span class="nc" id="L54">    scene.draw(drawPixels1);</span>
+<span class="nc" id="L55">    var buffer1 = scene.getBuffer();</span>
+<span class="nc" id="L56">    printBlackPixelCoordinate(buffer1);</span>
+
+<span class="nc" id="L58">    var drawPixels2 = List.of(</span>
+<span class="nc" id="L59">        new MutablePair&lt;&gt;(3, 7),</span>
+<span class="nc" id="L60">        new MutablePair&lt;&gt;(6, 1)</span>
+    );
+<span class="nc" id="L62">    scene.draw(drawPixels2);</span>
+<span class="nc" id="L63">    var buffer2 = scene.getBuffer();</span>
+<span class="nc" id="L64">    printBlackPixelCoordinate(buffer2);</span>
+<span class="nc" id="L65">  }</span>
+
+  private static void printBlackPixelCoordinate(Buffer buffer) {
+<span class="nc" id="L68">    StringBuilder log = new StringBuilder(&quot;Black Pixels: &quot;);</span>
+<span class="nc" id="L69">    var pixels = buffer.getPixels();</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">    for (var i = 0; i &lt; pixels.length; ++i) {</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">      if (pixels[i] == Pixel.BLACK) {</span>
+<span class="nc" id="L72">        var y = i / FrameBuffer.WIDTH;</span>
+<span class="nc" id="L73">        var x = i % FrameBuffer.WIDTH;</span>
+<span class="nc" id="L74">        log.append(&quot; (&quot;).append(x).append(&quot;, &quot;).append(y).append(&quot;)&quot;);</span>
+      }
+    }
+<span class="nc" id="L77">    LOGGER.info(log.toString());</span>
+<span class="nc" id="L78">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

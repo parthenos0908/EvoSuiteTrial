@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WorkCenter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.leaderfollowers</a> &gt; <span class="el_source">WorkCenter.java</span></div><h1>WorkCenter.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.leaderfollowers;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+/**
+ * A WorkCenter contains a leader and a list of idle workers. The leader is responsible for
+ * receiving work when it arrives. This class also provides a mechanism to promote a new leader. A
+ * worker once he completes his task will add himself back to the center.
+ */
+<span class="nc" id="L34">public class WorkCenter {</span>
+
+  private Worker leader;
+<span class="nc" id="L37">  private final List&lt;Worker&gt; workers = new CopyOnWriteArrayList&lt;&gt;();</span>
+
+  /**
+   * Create workers and set leader.
+   */
+  public void createWorkers(int numberOfWorkers, TaskSet taskSet, TaskHandler taskHandler) {
+<span class="nc bnc" id="L43" title="All 2 branches missed.">    for (var id = 1; id &lt;= numberOfWorkers; id++) {</span>
+<span class="nc" id="L44">      var worker = new Worker(id, this, taskSet, taskHandler);</span>
+<span class="nc" id="L45">      workers.add(worker);</span>
+    }
+<span class="nc" id="L47">    promoteLeader();</span>
+<span class="nc" id="L48">  }</span>
+
+  public void addWorker(Worker worker) {
+<span class="nc" id="L51">    workers.add(worker);</span>
+<span class="nc" id="L52">  }</span>
+
+  public void removeWorker(Worker worker) {
+<span class="nc" id="L55">    workers.remove(worker);</span>
+<span class="nc" id="L56">  }</span>
+
+  public Worker getLeader() {
+<span class="nc" id="L59">    return leader;</span>
+  }
+
+  /**
+   * Promote a leader.
+   */
+  public void promoteLeader() {
+<span class="nc" id="L66">    Worker leader = null;</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">    if (workers.size() &gt; 0) {</span>
+<span class="nc" id="L68">      leader = workers.get(0);</span>
+    }
+<span class="nc" id="L70">    this.leader = leader;</span>
+<span class="nc" id="L71">  }</span>
+
+  public List&lt;Worker&gt; getWorkers() {
+<span class="nc" id="L74">    return workers;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

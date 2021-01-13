@@ -1,0 +1,8 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.typeobject,Cell,10,141,3,7,3,32,3,8,0,6
+JaCoCo Coverage Report,com.iluwatar.typeobject,CellPool,62,133,0,8,8,29,0,9,0,5
+JaCoCo Coverage Report,com.iluwatar.typeobject,CandyGame,269,275,26,34,46,39,17,21,4,4
+JaCoCo Coverage Report,com.iluwatar.typeobject,JsonParser,4,144,2,10,1,31,2,7,0,3
+JaCoCo Coverage Report,com.iluwatar.typeobject,Candy.Type,0,15,0,0,0,3,0,1,0,1
+JaCoCo Coverage Report,com.iluwatar.typeobject,Candy,0,28,0,0,0,11,0,4,0,4
+JaCoCo Coverage Report,com.iluwatar.typeobject,App,98,0,8,0,29,0,7,0,3,0

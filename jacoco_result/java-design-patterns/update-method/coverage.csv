@@ -1,0 +1,6 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.updatemethod,Statue,43,0,2,0,14,0,5,0,4,0
+JaCoCo Coverage Report,com.iluwatar.updatemethod,App,51,0,0,0,16,0,3,0,3,0
+JaCoCo Coverage Report,com.iluwatar.updatemethod,Entity,21,0,0,0,8,0,3,0,3,0
+JaCoCo Coverage Report,com.iluwatar.updatemethod,Skeleton,56,0,6,0,16,0,6,0,3,0
+JaCoCo Coverage Report,com.iluwatar.updatemethod,World,88,0,4,0,31,0,11,0,9,0

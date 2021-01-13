@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LambdaInfo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.serverless.faas</a> &gt; <span class="el_source">LambdaInfo.java</span></div><h1>LambdaInfo.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.serverless.faas;
+
+import java.io.Serializable;
+import java.util.Objects;
+
+/**
+ * Lambda context information.
+ */
+<span class="fc" id="L32">public class LambdaInfo implements Serializable {</span>
+
+  private static final long serialVersionUID = 3936130599040848923L;
+
+  private String awsRequestId;
+  private String logGroupName;
+  private String logStreamName;
+  private String functionName;
+  private String functionVersion;
+  private Integer memoryLimitInMb;
+
+  public String getAwsRequestId() {
+<span class="fc" id="L44">    return awsRequestId;</span>
+  }
+
+  public void setAwsRequestId(String awsRequestId) {
+<span class="fc" id="L48">    this.awsRequestId = awsRequestId;</span>
+<span class="fc" id="L49">  }</span>
+
+  public String getLogGroupName() {
+<span class="fc" id="L52">    return logGroupName;</span>
+  }
+
+  public void setLogGroupName(String logGroupName) {
+<span class="fc" id="L56">    this.logGroupName = logGroupName;</span>
+<span class="fc" id="L57">  }</span>
+
+  public String getLogStreamName() {
+<span class="fc" id="L60">    return logStreamName;</span>
+  }
+
+  public void setLogStreamName(String logStreamName) {
+<span class="fc" id="L64">    this.logStreamName = logStreamName;</span>
+<span class="fc" id="L65">  }</span>
+
+  public String getFunctionName() {
+<span class="fc" id="L68">    return functionName;</span>
+  }
+
+  public void setFunctionName(String functionName) {
+<span class="fc" id="L72">    this.functionName = functionName;</span>
+<span class="fc" id="L73">  }</span>
+
+  public String getFunctionVersion() {
+<span class="fc" id="L76">    return functionVersion;</span>
+  }
+
+  public void setFunctionVersion(String functionVersion) {
+<span class="fc" id="L80">    this.functionVersion = functionVersion;</span>
+<span class="fc" id="L81">  }</span>
+
+  public Integer getMemoryLimitInMb() {
+<span class="fc" id="L84">    return memoryLimitInMb;</span>
+  }
+
+  public void setMemoryLimitInMb(Integer memoryLimitInMb) {
+<span class="fc" id="L88">    this.memoryLimitInMb = memoryLimitInMb;</span>
+<span class="fc" id="L89">  }</span>
+
+  @Override
+  public String toString() {
+<span class="nc" id="L93">    return &quot;LambdaInfo{&quot;</span>
+        + &quot;awsRequestId='&quot; + awsRequestId + '\''
+        + &quot;, logGroupName='&quot; + logGroupName + '\''
+        + &quot;, logStreamName='&quot; + logStreamName + '\''
+        + &quot;, functionName='&quot; + functionName + '\''
+        + &quot;, functionVersion='&quot; + functionVersion + '\''
+        + &quot;, memoryLimitInMb=&quot; + memoryLimitInMb
+        + '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+<span class="nc bnc" id="L105" title="All 2 branches missed.">    if (this == o) {</span>
+<span class="nc" id="L106">      return true;</span>
+    }
+<span class="nc bnc" id="L108" title="All 4 branches missed.">    if (o == null || getClass() != o.getClass()) {</span>
+<span class="nc" id="L109">      return false;</span>
+    }
+
+<span class="nc" id="L112">    LambdaInfo that = (LambdaInfo) o;</span>
+
+<span class="nc bnc" id="L114" title="All 2 branches missed.">    if (!Objects.equals(awsRequestId, that.awsRequestId)) {</span>
+<span class="nc" id="L115">      return false;</span>
+    }
+<span class="nc bnc" id="L117" title="All 2 branches missed.">    if (!Objects.equals(logGroupName, that.logGroupName)) {</span>
+<span class="nc" id="L118">      return false;</span>
+    }
+<span class="nc bnc" id="L120" title="All 2 branches missed.">    if (!Objects.equals(logStreamName, that.logStreamName)) {</span>
+<span class="nc" id="L121">      return false;</span>
+    }
+<span class="nc bnc" id="L123" title="All 2 branches missed.">    if (!Objects.equals(functionName, that.functionName)) {</span>
+<span class="nc" id="L124">      return false;</span>
+    }
+<span class="nc bnc" id="L126" title="All 2 branches missed.">    if (!Objects.equals(functionVersion, that.functionVersion)) {</span>
+<span class="nc" id="L127">      return false;</span>
+    }
+<span class="nc" id="L129">    return Objects.equals(memoryLimitInMb, that.memoryLimitInMb);</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc bnc" id="L134" title="All 2 branches missed.">    var result = awsRequestId != null ? awsRequestId.hashCode() : 0;</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">    result = 31 * result + (logGroupName != null ? logGroupName.hashCode() : 0);</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">    result = 31 * result + (logStreamName != null ? logStreamName.hashCode() : 0);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">    result = 31 * result + (functionName != null ? functionName.hashCode() : 0);</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">    result = 31 * result + (functionVersion != null ? functionVersion.hashCode() : 0);</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">    result = 31 * result + (memoryLimitInMb != null ? memoryLimitInMb.hashCode() : 0);</span>
+<span class="nc" id="L140">    return result;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

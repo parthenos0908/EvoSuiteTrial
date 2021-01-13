@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DaoBaseImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.servicelayer.common</a> &gt; <span class="el_source">DaoBaseImpl.java</span></div><h1>DaoBaseImpl.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.servicelayer.common;
+
+import com.iluwatar.servicelayer.hibernate.HibernateUtil;
+import java.lang.reflect.ParameterizedType;
+import java.util.List;
+import org.hibernate.Criteria;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.Restrictions;
+
+/**
+ * Base class for Dao implementations.
+ *
+ * @param &lt;E&gt; Type of Entity
+ */
+<span class="fc" id="L39">public abstract class DaoBaseImpl&lt;E extends BaseEntity&gt; implements Dao&lt;E&gt; {</span>
+
+<span class="fc" id="L41">  @SuppressWarnings(&quot;unchecked&quot;)</span>
+<span class="fc" id="L42">  protected Class&lt;E&gt; persistentClass = (Class&lt;E&gt;) ((ParameterizedType) getClass()</span>
+<span class="fc" id="L43">      .getGenericSuperclass()).getActualTypeArguments()[0];</span>
+
+  /*
+   * Making this getSessionFactory() instead of getSession() so that it is the responsibility
+   * of the caller to open as well as close the session (prevents potential resource leak).
+   */
+  protected SessionFactory getSessionFactory() {
+<span class="fc" id="L50">    return HibernateUtil.getSessionFactory();</span>
+  }
+
+  @Override
+  public E find(Long id) {
+<span class="fc" id="L55">    Transaction tx = null;</span>
+    E result;
+<span class="fc" id="L57">    try (var session = getSessionFactory().openSession()) {</span>
+<span class="fc" id="L58">      tx = session.beginTransaction();</span>
+<span class="fc" id="L59">      var criteria = session.createCriteria(persistentClass);</span>
+<span class="fc" id="L60">      criteria.add(Restrictions.idEq(id));</span>
+<span class="fc" id="L61">      result = (E) criteria.uniqueResult();</span>
+<span class="fc" id="L62">      tx.commit();</span>
+<span class="nc" id="L63">    } catch (Exception e) {</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">      if (tx != null) {</span>
+<span class="nc" id="L65">        tx.rollback();</span>
+      }
+<span class="nc" id="L67">      throw e;</span>
+<span class="fc" id="L68">    }</span>
+<span class="fc" id="L69">    return result;</span>
+  }
+
+  @Override
+  public void persist(E entity) {
+<span class="fc" id="L74">    Transaction tx = null;</span>
+<span class="fc" id="L75">    try (var session = getSessionFactory().openSession()) {</span>
+<span class="fc" id="L76">      tx = session.beginTransaction();</span>
+<span class="fc" id="L77">      session.persist(entity);</span>
+<span class="fc" id="L78">      tx.commit();</span>
+<span class="nc" id="L79">    } catch (Exception e) {</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">      if (tx != null) {</span>
+<span class="nc" id="L81">        tx.rollback();</span>
+      }
+<span class="nc" id="L83">      throw e;</span>
+<span class="fc" id="L84">    }</span>
+<span class="fc" id="L85">  }</span>
+
+  @Override
+  public E merge(E entity) {
+<span class="fc" id="L89">    Transaction tx = null;</span>
+<span class="fc" id="L90">    E result = null;</span>
+<span class="fc" id="L91">    try (var session = getSessionFactory().openSession()) {</span>
+<span class="fc" id="L92">      tx = session.beginTransaction();</span>
+<span class="fc" id="L93">      result = (E) session.merge(entity);</span>
+<span class="fc" id="L94">      tx.commit();</span>
+<span class="nc" id="L95">    } catch (Exception e) {</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">      if (tx != null) {</span>
+<span class="nc" id="L97">        tx.rollback();</span>
+      }
+<span class="nc" id="L99">      throw e;</span>
+<span class="fc" id="L100">    }</span>
+<span class="fc" id="L101">    return result;</span>
+  }
+
+  @Override
+  public void delete(E entity) {
+<span class="fc" id="L106">    Transaction tx = null;</span>
+<span class="fc" id="L107">    try (var session = getSessionFactory().openSession()) {</span>
+<span class="fc" id="L108">      tx = session.beginTransaction();</span>
+<span class="fc" id="L109">      session.delete(entity);</span>
+<span class="fc" id="L110">      tx.commit();</span>
+<span class="nc" id="L111">    } catch (Exception e) {</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">      if (tx != null) {</span>
+<span class="nc" id="L113">        tx.rollback();</span>
+      }
+<span class="nc" id="L115">      throw e;</span>
+<span class="fc" id="L116">    }</span>
+<span class="fc" id="L117">  }</span>
+
+  @Override
+  public List&lt;E&gt; findAll() {
+<span class="fc" id="L121">    Transaction tx = null;</span>
+    List&lt;E&gt; result;
+<span class="fc" id="L123">    try (var session = getSessionFactory().openSession()) {</span>
+<span class="fc" id="L124">      tx = session.beginTransaction();</span>
+<span class="fc" id="L125">      Criteria criteria = session.createCriteria(persistentClass);</span>
+<span class="fc" id="L126">      result = criteria.list();</span>
+<span class="nc" id="L127">    } catch (Exception e) {</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">      if (tx != null) {</span>
+<span class="nc" id="L129">        tx.rollback();</span>
+      }
+<span class="nc" id="L131">      throw e;</span>
+<span class="fc" id="L132">    }</span>
+<span class="fc" id="L133">    return result;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

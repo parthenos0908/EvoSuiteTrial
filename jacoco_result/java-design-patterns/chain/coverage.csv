@@ -1,0 +1,9 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.chain,OrcCommander,0,20,0,2,0,8,0,4,0,3
+JaCoCo Coverage Report,com.iluwatar.chain,OrcSoldier,3,17,1,1,1,7,1,3,0,3
+JaCoCo Coverage Report,com.iluwatar.chain,RequestHandler,0,24,1,1,0,9,1,4,0,4
+JaCoCo Coverage Report,com.iluwatar.chain,App,3,26,0,0,1,5,1,1,1,1
+JaCoCo Coverage Report,com.iluwatar.chain,OrcKing,0,23,0,0,0,7,0,3,0,3
+JaCoCo Coverage Report,com.iluwatar.chain,OrcOfficer,0,20,0,2,0,8,0,4,0,3
+JaCoCo Coverage Report,com.iluwatar.chain,Request,0,29,0,0,0,10,0,6,0,6
+JaCoCo Coverage Report,com.iluwatar.chain,RequestType,0,21,0,0,0,2,0,1,0,1

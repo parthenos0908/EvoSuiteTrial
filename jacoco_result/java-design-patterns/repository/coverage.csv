@@ -1,0 +1,7 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.repository,PersonSpecifications.AgeBetweenSpec,0,21,0,0,0,5,0,2,0,2
+JaCoCo Coverage Report,com.iluwatar.repository,PersonSpecifications.NameEqualSpec,0,14,0,0,0,4,0,2,0,2
+JaCoCo Coverage Report,com.iluwatar.repository,App,3,148,0,0,1,29,1,4,1,4
+JaCoCo Coverage Report,com.iluwatar.repository,Person,86,93,20,10,20,29,17,11,3,10
+JaCoCo Coverage Report,com.iluwatar.repository,PersonSpecifications,3,0,0,0,1,0,1,0,1,0
+JaCoCo Coverage Report,com.iluwatar.repository,AppConfig,147,78,0,0,27,21,3,6,3,6

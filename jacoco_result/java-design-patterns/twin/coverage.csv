@@ -1,0 +1,5 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.twin,BallThread,0,57,0,4,0,23,0,9,0,7
+JaCoCo Coverage Report,com.iluwatar.twin,GameItem,0,13,0,0,0,5,0,3,0,3
+JaCoCo Coverage Report,com.iluwatar.twin,BallItem,0,38,0,4,0,13,0,8,0,6
+JaCoCo Coverage Report,com.iluwatar.twin,App,3,29,0,0,1,14,1,2,1,2

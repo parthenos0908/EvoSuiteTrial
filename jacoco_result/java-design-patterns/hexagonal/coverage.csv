@@ -1,0 +1,26 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.hexagonal,App,3,29,0,0,1,7,1,1,1,1
+JaCoCo Coverage Report,com.iluwatar.hexagonal.domain,LotteryTicketCheckResult,32,51,6,6,8,15,6,6,1,5
+JaCoCo Coverage Report,com.iluwatar.hexagonal.domain,LotteryTicketId,15,47,3,5,3,13,4,7,1,6
+JaCoCo Coverage Report,com.iluwatar.hexagonal.domain,LotteryNumbers.RandomNumberGenerator,0,18,0,0,0,4,0,2,0,2
+JaCoCo Coverage Report,com.iluwatar.hexagonal.domain,LotteryTicketCheckResult.CheckResult,0,21,0,0,0,4,0,1,0,1
+JaCoCo Coverage Report,com.iluwatar.hexagonal.domain,LotteryUtils,0,30,0,4,0,6,0,3,0,1
+JaCoCo Coverage Report,com.iluwatar.hexagonal.domain,LotteryNumbers,42,83,8,6,10,24,9,8,3,7
+JaCoCo Coverage Report,com.iluwatar.hexagonal.domain,LotteryTicket,65,51,13,7,15,16,13,5,4,4
+JaCoCo Coverage Report,com.iluwatar.hexagonal.domain,LotteryService,6,47,2,2,2,14,2,3,0,3
+JaCoCo Coverage Report,com.iluwatar.hexagonal.domain,LotteryAdministration,19,67,4,4,3,20,3,5,0,4
+JaCoCo Coverage Report,com.iluwatar.hexagonal.domain,PlayerDetails,81,60,19,9,17,18,16,5,3,4
+JaCoCo Coverage Report,com.iluwatar.hexagonal.module,LotteryTestingModule,0,22,0,0,0,5,0,2,0,2
+JaCoCo Coverage Report,com.iluwatar.hexagonal.module,LotteryModule,22,0,0,0,5,0,2,0,2,0
+JaCoCo Coverage Report,com.iluwatar.hexagonal.service,ConsoleLottery,122,0,12,0,35,0,11,0,5,0
+JaCoCo Coverage Report,com.iluwatar.hexagonal.service,LotteryConsoleServiceImpl,222,0,4,0,57,0,10,0,8,0
+JaCoCo Coverage Report,com.iluwatar.hexagonal.banking,InMemoryBank,2,64,1,1,1,12,1,5,0,5
+JaCoCo Coverage Report,com.iluwatar.hexagonal.banking,MongoBank,145,0,4,0,38,0,13,0,11,0
+JaCoCo Coverage Report,com.iluwatar.hexagonal.database,InMemoryTicketRepository,0,31,0,0,0,9,0,6,0,6
+JaCoCo Coverage Report,com.iluwatar.hexagonal.database,MongoTicketRepository,257,0,4,0,59,0,15,0,13,0
+JaCoCo Coverage Report,com.iluwatar.hexagonal.administration,ConsoleAdministrationSrvImpl,46,0,0,0,14,0,5,0,5,0
+JaCoCo Coverage Report,com.iluwatar.hexagonal.administration,ConsoleAdministration,109,0,10,0,33,0,10,0,5,0
+JaCoCo Coverage Report,com.iluwatar.hexagonal.sampledata,SampleData,3,425,0,2,1,17,1,5,1,4
+JaCoCo Coverage Report,com.iluwatar.hexagonal.mongo,MongoConnectionPropertiesLoader,54,0,2,0,16,0,3,0,2,0
+JaCoCo Coverage Report,com.iluwatar.hexagonal.eventlog,MongoEventLog,248,0,2,0,59,0,13,0,12,0
+JaCoCo Coverage Report,com.iluwatar.hexagonal.eventlog,StdOutEventLog,35,21,0,0,9,8,3,4,3,4

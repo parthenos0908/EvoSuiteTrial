@@ -1,0 +1,12 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.prototype,Mage,5,19,3,3,2,7,3,3,0,3
+JaCoCo Coverage Report,com.iluwatar.prototype,ElfMage,13,47,6,4,4,14,5,5,0,5
+JaCoCo Coverage Report,com.iluwatar.prototype,OrcWarlord,13,47,6,4,4,14,5,5,0,5
+JaCoCo Coverage Report,com.iluwatar.prototype,ElfBeast,13,47,6,4,4,14,5,5,0,5
+JaCoCo Coverage Report,com.iluwatar.prototype,Beast,5,19,3,3,2,7,3,3,0,3
+JaCoCo Coverage Report,com.iluwatar.prototype,ElfWarlord,13,47,6,4,4,14,5,5,0,5
+JaCoCo Coverage Report,com.iluwatar.prototype,HeroFactoryImpl,0,24,0,0,0,8,0,4,0,4
+JaCoCo Coverage Report,com.iluwatar.prototype,OrcBeast,13,47,6,4,4,14,5,5,0,5
+JaCoCo Coverage Report,com.iluwatar.prototype,OrcMage,13,47,6,4,4,14,5,5,0,5
+JaCoCo Coverage Report,com.iluwatar.prototype,App,3,79,0,0,1,16,1,2,1,2
+JaCoCo Coverage Report,com.iluwatar.prototype,Warlord,5,19,3,3,2,7,3,3,0,3

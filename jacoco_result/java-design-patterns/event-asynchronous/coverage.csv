@@ -1,0 +1,8 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.event.asynchronous,EventDoesNotExistException,4,0,0,0,2,0,1,0,1,0
+JaCoCo Coverage Report,com.iluwatar.event.asynchronous,InvalidOperationException,0,4,0,0,0,2,0,1,0,1
+JaCoCo Coverage Report,com.iluwatar.event.asynchronous,LongRunningEventException,4,0,0,0,2,0,1,0,1,0
+JaCoCo Coverage Report,com.iluwatar.event.asynchronous,Event,5,95,2,6,3,33,3,11,1,9
+JaCoCo Coverage Report,com.iluwatar.event.asynchronous,App,198,111,21,3,66,35,16,6,4,6
+JaCoCo Coverage Report,com.iluwatar.event.asynchronous,MaxNumOfEventsAllowedException,4,0,0,0,2,0,1,0,1,0
+JaCoCo Coverage Report,com.iluwatar.event.asynchronous,EventManager,58,175,6,12,10,40,10,14,4,11

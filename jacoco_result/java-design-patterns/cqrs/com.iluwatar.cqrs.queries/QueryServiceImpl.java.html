@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QueryServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.cqrs.queries</a> &gt; <span class="el_source">QueryServiceImpl.java</span></div><h1>QueryServiceImpl.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.cqrs.queries;
+
+import com.iluwatar.cqrs.constants.AppConstants;
+import com.iluwatar.cqrs.dto.Author;
+import com.iluwatar.cqrs.dto.Book;
+import com.iluwatar.cqrs.util.HibernateUtil;
+import java.math.BigInteger;
+import java.util.List;
+import org.hibernate.SessionFactory;
+import org.hibernate.transform.Transformers;
+
+/**
+ * This class is an implementation of {@link IQueryService}. It uses Hibernate native queries to
+ * return DTOs from the database.
+ */
+<span class="fc" id="L39">public class QueryServiceImpl implements IQueryService {</span>
+
+<span class="fc" id="L41">  private final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();</span>
+
+  @Override
+  public Author getAuthorByUsername(String username) {
+    Author authorDTo;
+<span class="fc" id="L46">    try (var session = sessionFactory.openSession()) {</span>
+<span class="fc" id="L47">      var sqlQuery = session.createSQLQuery(&quot;SELECT a.username as \&quot;username\&quot;,&quot;</span>
+          + &quot; a.name as \&quot;name\&quot;, a.email as \&quot;email\&quot;&quot;
+          + &quot;FROM Author a where a.username=:username&quot;);
+<span class="fc" id="L50">      sqlQuery.setParameter(AppConstants.USER_NAME, username);</span>
+<span class="fc" id="L51">      authorDTo = (Author) sqlQuery.setResultTransformer(Transformers.aliasToBean(Author.class))</span>
+<span class="fc" id="L52">          .uniqueResult();</span>
+    }
+<span class="fc" id="L54">    return authorDTo;</span>
+  }
+
+  @Override
+  public Book getBook(String title) {
+    Book bookDTo;
+<span class="fc" id="L60">    try (var session = sessionFactory.openSession()) {</span>
+<span class="fc" id="L61">      var sqlQuery = session.createSQLQuery(&quot;SELECT b.title as \&quot;title\&quot;,&quot;</span>
+          + &quot; b.price as \&quot;price\&quot;&quot; + &quot; FROM Book b where b.title=:title&quot;);
+<span class="fc" id="L63">      sqlQuery.setParameter(&quot;title&quot;, title);</span>
+<span class="fc" id="L64">      bookDTo =</span>
+<span class="fc" id="L65">          (Book) sqlQuery.setResultTransformer(Transformers.aliasToBean(Book.class)).uniqueResult();</span>
+    }
+<span class="fc" id="L67">    return bookDTo;</span>
+  }
+
+  @Override
+  public List&lt;Book&gt; getAuthorBooks(String username) {
+    List&lt;Book&gt; bookDTos;
+<span class="fc" id="L73">    try (var session = sessionFactory.openSession()) {</span>
+<span class="fc" id="L74">      var sqlQuery = session.createSQLQuery(&quot;SELECT b.title as \&quot;title\&quot;, b.price as \&quot;price\&quot;&quot;</span>
+          + &quot; FROM Author a , Book b where b.author_id = a.id and a.username=:username&quot;);
+<span class="fc" id="L76">      sqlQuery.setParameter(AppConstants.USER_NAME, username);</span>
+<span class="fc" id="L77">      bookDTos = sqlQuery.setResultTransformer(Transformers.aliasToBean(Book.class)).list();</span>
+    }
+<span class="fc" id="L79">    return bookDTos;</span>
+  }
+
+  @Override
+  public BigInteger getAuthorBooksCount(String username) {
+    BigInteger bookcount;
+<span class="fc" id="L85">    try (var session = sessionFactory.openSession()) {</span>
+<span class="fc" id="L86">      var sqlQuery = session.createSQLQuery(</span>
+          &quot;SELECT count(b.title)&quot; + &quot; FROM  Book b, Author a&quot;
+              + &quot; where b.author_id = a.id and a.username=:username&quot;);
+<span class="fc" id="L89">      sqlQuery.setParameter(AppConstants.USER_NAME, username);</span>
+<span class="fc" id="L90">      bookcount = (BigInteger) sqlQuery.uniqueResult();</span>
+    }
+<span class="fc" id="L92">    return bookcount;</span>
+  }
+
+  @Override
+  public BigInteger getAuthorsCount() {
+    BigInteger authorcount;
+<span class="fc" id="L98">    try (var session = sessionFactory.openSession()) {</span>
+<span class="fc" id="L99">      var sqlQuery = session.createSQLQuery(&quot;SELECT count(id) from Author&quot;);</span>
+<span class="fc" id="L100">      authorcount = (BigInteger) sqlQuery.uniqueResult();</span>
+    }
+<span class="fc" id="L102">    return authorcount;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

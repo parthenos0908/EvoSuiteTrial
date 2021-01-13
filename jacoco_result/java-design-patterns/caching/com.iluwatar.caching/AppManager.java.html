@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.caching</a> &gt; <span class="el_source">AppManager.java</span></div><h1>AppManager.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.caching;
+
+import java.text.ParseException;
+import java.util.Optional;
+
+/**
+ * AppManager helps to bridge the gap in communication between the main class and the application's
+ * back-end. DB connection is initialized through this class. The chosen caching strategy/policy is
+ * also initialized here. Before the cache can be used, the size of the cache has to be set.
+ * Depending on the chosen caching policy, AppManager will call the appropriate function in the
+ * CacheStore class.
+ */
+public final class AppManager {
+
+  private static CachingPolicy cachingPolicy;
+
+  private AppManager() {
+  }
+
+  /**
+   * Developer/Tester is able to choose whether the application should use MongoDB as its underlying
+   * data storage or a simple Java data structure to (temporarily) store the data/objects during
+   * runtime.
+   */
+  public static void initDb(boolean useMongoDb) {
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">    if (useMongoDb) {</span>
+      try {
+<span class="nc" id="L51">        DbManager.connect();</span>
+<span class="nc" id="L52">      } catch (ParseException e) {</span>
+<span class="nc" id="L53">        e.printStackTrace();</span>
+<span class="nc" id="L54">      }</span>
+    } else {
+<span class="fc" id="L56">      DbManager.createVirtualDb();</span>
+    }
+<span class="fc" id="L58">  }</span>
+
+  /**
+   * Initialize caching policy.
+   */
+  public static void initCachingPolicy(CachingPolicy policy) {
+<span class="fc" id="L64">    cachingPolicy = policy;</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">    if (cachingPolicy == CachingPolicy.BEHIND) {</span>
+<span class="fc" id="L66">      Runtime.getRuntime().addShutdownHook(new Thread(CacheStore::flushCache));</span>
+    }
+<span class="fc" id="L68">    CacheStore.clearCache();</span>
+<span class="fc" id="L69">  }</span>
+
+  public static void initCacheCapacity(int capacity) {
+<span class="fc" id="L72">    CacheStore.initCapacity(capacity);</span>
+<span class="fc" id="L73">  }</span>
+
+  /**
+   * Find user account.
+   */
+  public static UserAccount find(String userId) {
+<span class="fc bfc" id="L79" title="All 4 branches covered.">    if (cachingPolicy == CachingPolicy.THROUGH || cachingPolicy == CachingPolicy.AROUND) {</span>
+<span class="fc" id="L80">      return CacheStore.readThrough(userId);</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">    } else if (cachingPolicy == CachingPolicy.BEHIND) {</span>
+<span class="fc" id="L82">      return CacheStore.readThroughWithWriteBackPolicy(userId);</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">    } else if (cachingPolicy == CachingPolicy.ASIDE) {</span>
+<span class="fc" id="L84">      return findAside(userId);</span>
+    }
+<span class="nc" id="L86">    return null;</span>
+  }
+
+  /**
+   * Save user account.
+   */
+  public static void save(UserAccount userAccount) {
+<span class="fc bfc" id="L93" title="All 2 branches covered.">    if (cachingPolicy == CachingPolicy.THROUGH) {</span>
+<span class="fc" id="L94">      CacheStore.writeThrough(userAccount);</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">    } else if (cachingPolicy == CachingPolicy.AROUND) {</span>
+<span class="fc" id="L96">      CacheStore.writeAround(userAccount);</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">    } else if (cachingPolicy == CachingPolicy.BEHIND) {</span>
+<span class="fc" id="L98">      CacheStore.writeBehind(userAccount);</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">    } else if (cachingPolicy == CachingPolicy.ASIDE) {</span>
+<span class="fc" id="L100">      saveAside(userAccount);</span>
+    }
+<span class="fc" id="L102">  }</span>
+
+  public static String printCacheContent() {
+<span class="fc" id="L105">    return CacheStore.print();</span>
+  }
+
+  /**
+   * Cache-Aside save user account helper.
+   */
+  private static void saveAside(UserAccount userAccount) {
+<span class="fc" id="L112">    DbManager.updateDb(userAccount);</span>
+<span class="fc" id="L113">    CacheStore.invalidate(userAccount.getUserId());</span>
+<span class="fc" id="L114">  }</span>
+
+  /**
+   * Cache-Aside find user account helper.
+   */
+  private static UserAccount findAside(String userId) {
+<span class="fc" id="L120">    return Optional.ofNullable(CacheStore.get(userId))</span>
+<span class="fc" id="L121">        .or(() -&gt; {</span>
+<span class="fc" id="L122">          Optional&lt;UserAccount&gt; userAccount = Optional.ofNullable(DbManager.readFromDb(userId));</span>
+<span class="fc" id="L123">          userAccount.ifPresent(account -&gt; CacheStore.set(userId, account));</span>
+<span class="fc" id="L124">          return userAccount;</span>
+        })
+<span class="fc" id="L126">        .orElse(null);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

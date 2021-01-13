@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.transactionscript</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.transactionscript;
+
+import java.util.List;
+import javax.sql.DataSource;
+import org.h2.jdbcx.JdbcDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Transaction Script (TS) is one of the simplest domain logic pattern.
+ * It needs less work to implement than other domain logic patterns and therefore
+ * it窶冱 perfect fit for smaller applications that don't need big architecture behind them.
+ *
+ * &lt;p&gt;In this example we will use the TS pattern to implement booking and cancellation
+ * methods for a Hotel management App. The main method will initialise an instance of
+ * {@link Hotel} and add rooms to it. After that it will book and cancel a couple of rooms
+ * and that will be printed by the logger.&lt;/p&gt;
+ *
+ * &lt;p&gt;The thing we have to note here is that all the operations related to booking or cancelling
+ * a room like checking the database if the room exists, checking the booking status or the
+ * room, calculating refund price are all clubbed inside a single transaction script method.&lt;/p&gt;
+ */
+<span class="nc" id="L46">public class App {</span>
+
+  private static final String H2_DB_URL = &quot;jdbc:h2:~/test&quot;;
+<span class="fc" id="L49">  private static final Logger LOGGER = LoggerFactory.getLogger(App.class);</span>
+
+  /**
+   * Program entry point.
+   * Initialises an instance of Hotel and adds rooms to it.
+   * Carries out booking and cancel booking transactions.
+   * @param args command line arguments
+   * @throws Exception if any error occurs
+   */
+  public static void main(String[] args) throws Exception {
+
+<span class="fc" id="L60">    final var dataSource = createDataSource();</span>
+<span class="fc" id="L61">    deleteSchema(dataSource);</span>
+<span class="fc" id="L62">    createSchema(dataSource);</span>
+<span class="fc" id="L63">    final var dao = new HotelDaoImpl(dataSource);</span>
+
+    // Add rooms
+<span class="fc" id="L66">    addRooms(dao);</span>
+
+    // Print room booking status
+<span class="fc" id="L69">    getRoomStatus(dao);</span>
+  
+<span class="fc" id="L71">    var hotel = new Hotel(dao);</span>
+
+    // Book rooms
+<span class="fc" id="L74">    hotel.bookRoom(1);</span>
+<span class="fc" id="L75">    hotel.bookRoom(2);</span>
+<span class="fc" id="L76">    hotel.bookRoom(3);</span>
+<span class="fc" id="L77">    hotel.bookRoom(4);</span>
+<span class="fc" id="L78">    hotel.bookRoom(5);</span>
+<span class="fc" id="L79">    hotel.bookRoom(6);</span>
+
+    // Cancel booking for a few rooms
+<span class="fc" id="L82">    hotel.cancelRoomBooking(1);</span>
+<span class="fc" id="L83">    hotel.cancelRoomBooking(3);</span>
+<span class="fc" id="L84">    hotel.cancelRoomBooking(5);</span>
+
+<span class="fc" id="L86">    getRoomStatus(dao);</span>
+
+<span class="fc" id="L88">    deleteSchema(dataSource);</span>
+
+<span class="fc" id="L90">  }</span>
+
+  private static void getRoomStatus(HotelDaoImpl dao) throws Exception {
+<span class="fc" id="L93">    try (var customerStream = dao.getAll()) {</span>
+<span class="fc" id="L94">      customerStream.forEach((customer) -&gt; LOGGER.info(customer.toString()));</span>
+    }
+<span class="fc" id="L96">  }</span>
+
+  private static void deleteSchema(DataSource dataSource) throws java.sql.SQLException {
+<span class="fc" id="L99">    try (var connection = dataSource.getConnection();</span>
+<span class="fc" id="L100">         var statement = connection.createStatement()) {</span>
+<span class="fc" id="L101">      statement.execute(RoomSchemaSql.DELETE_SCHEMA_SQL);</span>
+    }
+<span class="fc" id="L103">  }</span>
+
+  private static void createSchema(DataSource dataSource) throws Exception {
+<span class="fc" id="L106">    try (var connection = dataSource.getConnection();</span>
+<span class="fc" id="L107">         var statement = connection.createStatement()) {</span>
+<span class="fc" id="L108">      statement.execute(RoomSchemaSql.CREATE_SCHEMA_SQL);</span>
+<span class="nc" id="L109">    } catch (Exception e) {</span>
+<span class="nc" id="L110">      throw new Exception(e.getMessage(), e);</span>
+<span class="fc" id="L111">    }</span>
+<span class="fc" id="L112">  }</span>
+
+  /**
+   * Get database.
+   *
+   * @return h2 datasource
+   */
+  private static DataSource createDataSource() {
+<span class="fc" id="L120">    var dataSource = new JdbcDataSource();</span>
+<span class="fc" id="L121">    dataSource.setUrl(H2_DB_URL);</span>
+<span class="fc" id="L122">    return dataSource;</span>
+  }
+
+  private static void addRooms(HotelDaoImpl hotelDao) throws Exception {
+<span class="fc bfc" id="L126" title="All 2 branches covered.">    for (var room : generateSampleRooms()) {</span>
+<span class="fc" id="L127">      hotelDao.add(room);</span>
+<span class="fc" id="L128">    }</span>
+<span class="fc" id="L129">  }</span>
+
+  /**
+   * Generate rooms.
+   *
+   * @return list of rooms
+   */
+  private static List&lt;Room&gt; generateSampleRooms() {
+<span class="fc" id="L137">    final var room1 = new Room(1, &quot;Single&quot;, 50, false);</span>
+<span class="fc" id="L138">    final var room2 = new Room(2, &quot;Double&quot;, 80, false);</span>
+<span class="fc" id="L139">    final var room3 = new Room(3, &quot;Queen&quot;, 120, false);</span>
+<span class="fc" id="L140">    final var room4 = new Room(4, &quot;King&quot;, 150, false);</span>
+<span class="fc" id="L141">    final var room5 = new Room(5, &quot;Single&quot;, 50, false);</span>
+<span class="fc" id="L142">    final var room6 = new Room(6, &quot;Double&quot;, 80, false);</span>
+<span class="fc" id="L143">    return List.of(room1, room2, room3, room4, room5, room6);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

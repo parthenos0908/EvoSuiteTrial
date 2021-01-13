@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.iluwatar.servant</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright ﾂｩ 2014-2019 Ilkka Seppﾃ､lﾃ､
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package com.iluwatar.servant;
+
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+/**
+ * Servant offers some functionality to a group of classes without defining that functionality in
+ * each of them. A Servant is a class whose instance provides methods that take care of a desired
+ * service, while objects for which the servant does something, are taken as parameters.
+ *
+ * &lt;p&gt;In this example {@link Servant} is serving {@link King} and {@link Queen}.
+ */
+<span class="nc" id="L38">public class App {</span>
+
+<span class="fc" id="L40">  private static final Logger LOGGER = LoggerFactory.getLogger(App.class);</span>
+
+<span class="fc" id="L42">  private static final Servant jenkins = new Servant(&quot;Jenkins&quot;);</span>
+<span class="fc" id="L43">  private static final Servant travis = new Servant(&quot;Travis&quot;);</span>
+
+  /**
+   * Program entry point.
+   */
+  public static void main(String[] args) {
+<span class="fc" id="L49">    scenario(jenkins, 1);</span>
+<span class="fc" id="L50">    scenario(travis, 0);</span>
+<span class="fc" id="L51">  }</span>
+
+  /**
+   * Can add a List with enum Actions for variable scenarios.
+   */
+  public static void scenario(Servant servant, int compliment) {
+<span class="fc" id="L57">    var k = new King();</span>
+<span class="fc" id="L58">    var q = new Queen();</span>
+
+<span class="fc" id="L60">    var guests = List.of(k, q);</span>
+
+    // feed
+<span class="fc" id="L63">    servant.feed(k);</span>
+<span class="fc" id="L64">    servant.feed(q);</span>
+    // serve drinks
+<span class="fc" id="L66">    servant.giveWine(k);</span>
+<span class="fc" id="L67">    servant.giveWine(q);</span>
+    // compliment
+<span class="fc" id="L69">    servant.giveCompliments(guests.get(compliment));</span>
+
+    // outcome of the night
+<span class="fc" id="L72">    guests.forEach(Royalty::changeMood);</span>
+
+    // check your luck
+<span class="fc bfc" id="L75" title="All 2 branches covered.">    if (servant.checkIfYouWillBeHanged(guests)) {</span>
+<span class="fc" id="L76">      LOGGER.info(&quot;{} will live another day&quot;, servant.name);</span>
+    } else {
+<span class="fc" id="L78">      LOGGER.info(&quot;Poor {}. His days are numbered&quot;, servant.name);</span>
+    }
+<span class="fc" id="L80">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

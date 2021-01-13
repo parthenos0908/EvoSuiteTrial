@@ -1,0 +1,7 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JaCoCo Coverage Report,com.iluwatar.leaderfollowers,WorkCenter,66,0,4,0,18,0,9,0,7,0
+JaCoCo Coverage Report,com.iluwatar.leaderfollowers,TaskSet,23,0,0,0,6,0,4,0,4,0
+JaCoCo Coverage Report,com.iluwatar.leaderfollowers,App,74,0,2,0,20,0,5,0,4,0
+JaCoCo Coverage Report,com.iluwatar.leaderfollowers,TaskHandler,20,0,0,0,7,0,3,0,3,0
+JaCoCo Coverage Report,com.iluwatar.leaderfollowers,Task,16,0,0,0,7,0,4,0,4,0
+JaCoCo Coverage Report,com.iluwatar.leaderfollowers,Worker,118,0,12,0,34,0,11,0,5,0
